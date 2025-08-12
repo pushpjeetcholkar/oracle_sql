@@ -161,7 +161,7 @@ This is an educational resource. If you find any issues or have suggestions for 
 
 © 2025 PITC USA. All rights reserved.
 
-This educational resource is provided for learning purposes. Oracle is a registered trademark of Oracle Corporation.
+This educational resource is provided for learning purposes. 
 
 ## 🆘 Support
 
@@ -177,5 +177,6 @@ For questions or issues:
 ---
 
 **Happy Learning!** 🎓
+
 
 Master Oracle SQL step by step with this comprehensive interactive guide.
