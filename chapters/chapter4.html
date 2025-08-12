@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Reporting Aggregated Data using Group Functions</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 1 (Ch 1-8)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter1.html">Ch 1: SELECT Statement</a></li>
+                        <li><a href="chapter2.html">Ch 2: Restricting & Sorting</a></li>
+                        <li><a href="chapter3.html">Ch 3: Single Row Functions</a></li>
+                        <li><a href="chapter4.html">Ch 4: Group Functions</a></li>
+                        <li><a href="chapter5.html">Ch 5: Multiple Tables</a></li>
+                        <li><a href="chapter6.html">Ch 6: Subqueries</a></li>
+                        <li><a href="chapter7.html">Ch 7: Set Operators</a></li>
+                        <li><a href="chapter8.html">Ch 8: Manipulating Data</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 4: Reporting Aggregated Data using Group Functions</h1>
+            <p>Learn to summarize and analyze data with aggregate functions</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Group Functions Overview</h2>
+                
+                <p>Group functions operate on sets of rows to give one result per group. They are also called aggregate functions.</p>
+
+                <h3>Common Group Functions:</h3>
+                <div class="code-block">
+-- Comprehensive example of all group functions
+SELECT 
+    AVG(sal) "Average",
+    COUNT(*) "Count",
+    MAX(sal) "Maximum",
+    MIN(sal) "Minimum",
+    STDDEV(sal) "Standard Deviation",
+    SUM(sal) "Sum",
+    VARIANCE(sal) "Variance"
+FROM emp;
+                </div>
+
+                <h3>Formatting Group Function Results:</h3>
+                <div class="code-block">
+-- Round and truncate results for better display
+SELECT 
+    ROUND(AVG(SAL)) "Average",
+    TRUNC(AVG(SAL)) "Truncated Avg",
+    COUNT(*) "Count",
+    MAX(SAL) "Maximum",
+    MIN(SAL) "Minimum",
+    STDDEV(SAL) "Standard Deviation",
+    SUM(SAL) "Sum",
+    VARIANCE(SAL) "Variance"
+FROM EMP;
+                </div>
+
+                <h3>COUNT Function Variations:</h3>
+                <div class="code-block">
+-- Different COUNT variations
+SELECT 
+    AVG(sal) "Average",
+    COUNT(deptno) "Dept Count",           -- Counts non-NULL values
+    COUNT(*) "Total Count",               -- Counts all rows
+    COUNT(DISTINCT deptno) "Unique Depts", -- Counts distinct values
+    MAX(sal) "Maximum",
+    MIN(sal) "Minimum"
+FROM emp;
+                </div>
+
+                <div class="note-box">
+                    <strong>Group Function Types:</strong>
+                    <ul>
+                        <li><strong>AVG:</strong> Average value of numeric column</li>
+                        <li><strong>COUNT:</strong> Number of rows (COUNT(*)) or non-NULL values</li>
+                        <li><strong>MAX/MIN:</strong> Maximum/minimum values</li>
+                        <li><strong>SUM:</strong> Total of numeric values</li>
+                        <li><strong>STDDEV:</strong> Standard deviation</li>
+                        <li><strong>VARIANCE:</strong> Variance of values</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Group Functions and NULL Values</h2>
+                
+                <p>Group functions automatically eliminate NULL values from calculations.</p>
+
+                <div class="code-block">
+-- Average commission (ignores NULL values)
+SELECT AVG(COMM) "Average Comm without NULL"
+FROM EMP;
+                </div>
+
+                <h3>Including NULL Values in Calculations:</h3>
+                <div class="code-block">
+-- Force inclusion of NULL values using NVL
+SELECT AVG(NVL(COMM,0)) "Commission Avg with NULL"
+FROM EMP;
+                </div>
+
+                <div class="warning-box">
+                    <strong>Important:</strong> Group functions ignore NULL values. Use NVL() if you want to treat NULL as zero or another value in calculations.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. GROUP BY Clause</h2>
+                
+                <p>The GROUP BY clause divides rows into groups and applies group functions to each group.</p>
+
+                <h3>Basic GROUP BY Example:</h3>
+                <div class="code-block">
+-- View data sorted by department
+SELECT sal, deptno FROM emp ORDER BY deptno;
+
+-- Sum salary by department
+SELECT DEPTNO, SUM(SAL)
+FROM EMP
+GROUP BY DEPTNO
+ORDER BY DEPTNO;
+                </div>
+
+                <h3>Counting by Groups:</h3>
+                <div class="code-block">
+-- Count employees by department
+SELECT deptno, COUNT(empno)
+FROM emp
+GROUP BY deptno
+ORDER BY deptno;
+                </div>
+
+                <h3>GROUP BY Rules:</h3>
+                <div class="highlight-box">
+                    <strong>Important Rules:</strong>
+                    <ul>
+                        <li>Columns in SELECT must be in GROUP BY (except group functions)</li>
+                        <li>Columns in GROUP BY don't have to be in SELECT</li>
+                        <li>You can use group functions in ORDER BY</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+-- Columns in GROUP BY don't need to be selected
+SELECT SUM(sal)
+FROM emp
+GROUP BY deptno
+ORDER BY deptno;
+
+-- Use group functions in ORDER BY
+SELECT DEPTNO, SUM(SAL)
+FROM EMP
+GROUP BY DEPTNO
+ORDER BY SUM(SAL);
+                </div>
+
+                <h3>Grouping by Multiple Columns:</h3>
+                <div class="code-block">
+-- View data by department and job
+SELECT SAL, DEPTNO, JOB FROM EMP ORDER BY DEPTNO;
+
+-- Group by department and job
+SELECT DEPTNO, JOB, SUM(SAL)
+FROM EMP
+GROUP BY DEPTNO, JOB
+ORDER BY DEPTNO;
+                </div>
+
+                <h3>Common GROUP BY Errors:</h3>
+                <div class="warning-box">
+                    <strong>This will cause an error:</strong>
+                    <div class="code-block">
+-- ERROR: DEPTNO not in GROUP BY
+SELECT DEPTNO, SUM(SAL)
+FROM EMP;
+                    </div>
+                    <p><strong>Rule:</strong> Any column in SELECT that is not an aggregate function must be in GROUP BY clause.</p>
+                </div>
+
+                <div class="code-block">
+-- Correct version
+SELECT DEPTNO, SUM(SAL)
+FROM EMP
+GROUP BY DEPTNO;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. HAVING Clause</h2>
+                
+                <p>The HAVING clause filters groups after they have been formed, similar to how WHERE filters individual rows.</p>
+
+                <h3>WHERE vs HAVING:</h3>
+                <div class="warning-box">
+                    <strong>This will cause an error:</strong>
+                    <div class="code-block">
+-- ERROR: Cannot use group functions in WHERE
+SELECT DEPTNO, SUM(SAL)
+FROM EMP
+WHERE SUM(SAL) > 8000
+GROUP BY DEPTNO;
+                    </div>
+                    <p><strong>Problem:</strong> WHERE clause cannot contain group functions.</p>
+                </div>
+
+                <div class="code-block">
+-- Correct: Use HAVING for group function conditions
+SELECT DEPTNO, SUM(SAL)
+FROM EMP
+GROUP BY DEPTNO
+HAVING SUM(SAL) > 9000;
+                </div>
+
+                <h3>HAVING with ORDER BY:</h3>
+                <div class="code-block">
+-- Filter groups and sort results
+SELECT deptno, SUM(sal)
+FROM emp
+GROUP BY deptno
+HAVING SUM(sal) > 9000
+ORDER BY SUM(sal) DESC;
+                </div>
+
+                <h3>Combining WHERE and HAVING:</h3>
+                <div class="code-block">
+-- WHERE filters rows before grouping
+-- HAVING filters groups after grouping
+SELECT deptno, AVG(sal)
+FROM emp
+WHERE job != 'CLERK'        -- Filter individual rows first
+GROUP BY deptno
+HAVING AVG(sal) > 2000      -- Then filter groups
+ORDER BY AVG(sal);
+                </div>
+
+                <div class="note-box">
+                    <strong>SQL Execution Order:</strong>
+                    <ol>
+                        <li><strong>WHERE:</strong> Filters individual rows</li>
+                        <li><strong>GROUP BY:</strong> Groups the filtered rows</li>
+                        <li><strong>HAVING:</strong> Filters the groups</li>
+                        <li><strong>ORDER BY:</strong> Sorts the final result</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Nesting Group Functions</h2>
+                
+                <p>You can nest group functions, but there are specific rules to follow.</p>
+
+                <h3>Valid Nested Group Function:</h3>
+                <div class="code-block">
+-- Find the maximum of average salaries by department
+SELECT ROUND(MAX(AVG(sal))) "Max Avg Salary"
+FROM emp
+GROUP BY deptno;
+                </div>
+
+                <h3>Invalid Nested Group Function:</h3>
+                <div class="warning-box">
+                    <strong>This will cause an error:</strong>
+                    <div class="code-block">
+-- ERROR: Nested group function without GROUP BY
+SELECT ROUND(MAX(AVG(sal))) Max 
+FROM emp;
+                    </div>
+                    <p><strong>Rule:</strong> Nested group functions require a GROUP BY clause.</p>
+                </div>
+
+                <h3>Understanding the Nested Function:</h3>
+                <div class="code-block">
+-- Step 1: See average salary by department
+SELECT AVG(sal), deptno 
+FROM emp
+GROUP BY deptno;
+
+-- Step 2: Find maximum of those averages
+SELECT ROUND(MAX(AVG(sal))) "Max Avg Salary"
+FROM emp
+GROUP BY deptno;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Practical Examples</h2>
+                
+                <h3>Employee Statistics by Department:</h3>
+                <div class="code-block">
+-- Comprehensive department statistics
+SELECT 
+    deptno "Department",
+    COUNT(*) "Employees",
+    ROUND(AVG(sal)) "Avg Salary",
+    MIN(sal) "Min Salary",
+    MAX(sal) "Max Salary",
+    SUM(sal) "Total Salary"
+FROM emp
+GROUP BY deptno
+ORDER BY deptno;
+                </div>
+
+                <h3>Job Analysis:</h3>
+                <div class="code-block">
+-- Salary analysis by job title
+SELECT 
+    job "Job Title",
+    COUNT(*) "Count",
+    ROUND(AVG(sal)) "Average",
+    MIN(sal) "Minimum",
+    MAX(sal) "Maximum"
+FROM emp
+GROUP BY job
+HAVING COUNT(*) > 1
+ORDER BY AVG(sal) DESC;
+                </div>
+
+                <h3>Department and Job Combination:</h3>
+                <div class="code-block">
+-- Detailed breakdown by department and job
+SELECT 
+    deptno "Dept",
+    job "Job",
+    COUNT(*) "Count",
+    SUM(sal) "Total Sal"
+FROM emp
+GROUP BY deptno, job
+HAVING COUNT(*) > 1
+ORDER BY deptno, job;
+                </div>
+
+                <h3>Hire Date Analysis:</h3>
+                <div class="code-block">
+-- Employees hired by year
+SELECT 
+    TO_CHAR(hiredate, 'YYYY') "Year",
+    COUNT(*) "Hired",
+    ROUND(AVG(sal)) "Avg Salary"
+FROM emp
+GROUP BY TO_CHAR(hiredate, 'YYYY')
+ORDER BY TO_CHAR(hiredate, 'YYYY');
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. Best Practices</h2>
+                
+                <ul>
+                    <li><strong>Use meaningful aliases</strong> for group function results</li>
+                    <li><strong>Format numbers</strong> using ROUND() or TRUNC() for readability</li>
+                    <li><strong>Order results</strong> logically (by group or by aggregate value)</li>
+                    <li><strong>Use HAVING</strong> for filtering groups, WHERE for filtering rows</li>
+                    <li><strong>Consider NULL values</strong> and use NVL() when appropriate</li>
+                    <li><strong>Test nested functions</strong> step by step</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Performance Tips:</strong>
+                    <ul>
+                        <li>Use WHERE to filter rows before grouping (reduces processing)</li>
+                        <li>Index columns used in GROUP BY for better performance</li>
+                        <li>Avoid unnecessary columns in GROUP BY</li>
+                        <li>Use HAVING only when you need to filter on aggregate results</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter3.html">← Chapter 3: Single Row Functions</a>
+                <a href="chapter5.html">Next: Chapter 5 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

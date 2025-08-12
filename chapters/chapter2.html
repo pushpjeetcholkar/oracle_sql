@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2: Restricting and Sorting Data</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 1 (Ch 1-8)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter1.html">Ch 1: SELECT Statement</a></li>
+                        <li><a href="chapter2.html">Ch 2: Restricting & Sorting</a></li>
+                        <li><a href="chapter3.html">Ch 3: Single Row Functions</a></li>
+                        <li><a href="chapter4.html">Ch 4: Group Functions</a></li>
+                        <li><a href="chapter5.html">Ch 5: Multiple Tables</a></li>
+                        <li><a href="chapter6.html">Ch 6: Subqueries</a></li>
+                        <li><a href="chapter7.html">Ch 7: Set Operators</a></li>
+                        <li><a href="chapter8.html">Ch 8: Manipulating Data</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 2: Restricting and Sorting Data</h1>
+            <p>Learn to filter and sort your query results effectively</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Limiting Rows using the WHERE Clause</h2>
+                
+                <p>A SELECT Statement retrieves all the records from a Table. When we need to display specific records (like Employee Records belonging to Department 10), we use the WHERE clause.</p>
+
+                <h3>Syntax:</h3>
+                <div class="code-block">
+SELECT *|{[DISTINCT] column|expression [alias],...}
+FROM table
+[WHERE condition(s)];
+                </div>
+
+                <div class="note-box">
+                    <strong>Key Points:</strong>
+                    <ul>
+                        <li>The WHERE clause follows the FROM clause</li>
+                        <li>Contains the condition that must be met</li>
+                        <li>If the condition is true, the row meeting that condition is returned</li>
+                        <li>WHERE restricts the query to rows that meet the condition</li>
+                        <li>Condition is composed of column names and a comparison operator</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+-- Select all employees
+SELECT empno,ename,job,deptno
+FROM emp;
+
+-- Select employees from department 10
+SELECT empno,ename,job,deptno
+FROM emp
+WHERE deptno = 10;
+
+-- This will return no rows if department 100 doesn't exist
+SELECT empno,ename,job,deptno
+FROM emp
+WHERE deptno = 100;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Character Strings and Dates</h2>
+                
+                <ul>
+                    <li>Character strings and date values are enclosed in single quotation marks</li>
+                    <li>Character values are case sensitive</li>
+                    <li>Date values are format sensitive</li>
+                    <li>The default date format is DD-MON-RR</li>
+                </ul>
+
+                <div class="code-block">
+-- Case sensitive character comparison
+SELECT empno,ename,job,deptno
+FROM emp
+WHERE ename = 'Smith';  -- Will not match 'SMITH'
+
+SELECT empno,ename,job,deptno
+FROM emp
+WHERE ename = 'SMITH';  -- Correct case
+
+-- Date format examples
+SELECT empno,ename,hiredate
+FROM emp
+WHERE hiredate = 'December 17 1980';  -- May not work
+
+SELECT empno,ename,hiredate
+FROM emp
+WHERE hiredate = '17-DEC-80';  -- Correct format
+                </div>
+
+                <div class="warning-box">
+                    <strong>Important:</strong> Always use the correct case for character data and proper date format (DD-MON-RR) for date comparisons.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Comparison Conditions</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operator</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>=</td>
+                            <td>Equal To</td>
+                            <td>sal = 800</td>
+                        </tr>
+                        <tr>
+                            <td>></td>
+                            <td>Greater Than</td>
+                            <td>sal > 800</td>
+                        </tr>
+                        <tr>
+                            <td>>=</td>
+                            <td>Greater Than or equal to</td>
+                            <td>sal >= 800</td>
+                        </tr>
+                        <tr>
+                            <td><</td>
+                            <td>Less than</td>
+                            <td>sal < 3000</td>
+                        </tr>
+                        <tr>
+                            <td><=</td>
+                            <td>Less than or equal to</td>
+                            <td>sal <= 3000</td>
+                        </tr>
+                        <tr>
+                            <td><> or !=</td>
+                            <td>Not Equal to</td>
+                            <td>sal <> 800</td>
+                        </tr>
+                        <tr>
+                            <td>BETWEEN...AND...</td>
+                            <td>Between two values (inclusive)</td>
+                            <td>sal BETWEEN 200 AND 3000</td>
+                        </tr>
+                        <tr>
+                            <td>IN(set)</td>
+                            <td>Match any of a list of values</td>
+                            <td>deptno IN(10,20,30)</td>
+                        </tr>
+                        <tr>
+                            <td>LIKE</td>
+                            <td>Match a Character pattern</td>
+                            <td>ename LIKE 'S%'</td>
+                        </tr>
+                        <tr>
+                            <td>IS NULL</td>
+                            <td>Is a NULL value</td>
+                            <td>comm IS NULL</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Examples:</h3>
+                <div class="code-block">
+-- Comparison operators
+SELECT empno,ename,sal FROM EMP WHERE sal > 800;
+SELECT empno,ename,sal FROM EMP WHERE sal >= 800;
+SELECT empno,ename,sal FROM EMP WHERE sal < 3000;
+SELECT empno,ename,sal FROM EMP WHERE sal <= 3000;
+SELECT empno,ename,sal FROM EMP WHERE sal <> 800;
+
+-- BETWEEN operator (inclusive)
+SELECT empno,ename,sal FROM EMP WHERE sal BETWEEN 200 AND 3000;
+-- Equivalent to:
+SELECT empno,ename,sal FROM EMP WHERE sal >= 200 AND sal <= 3000;
+
+-- Date BETWEEN
+SELECT empno,ename,hiredate FROM EMP 
+WHERE hiredate BETWEEN '01-JAN-80' AND '31-DEC-80';
+
+-- Character BETWEEN (alphabetical order)
+SELECT empno,ename,hiredate FROM EMP 
+WHERE ename BETWEEN 'SMITH' AND 'KING';
+
+-- IN operator
+SELECT empno,ename,deptno FROM EMP WHERE deptno IN(40,10,20);
+SELECT empno,ename,deptno FROM EMP WHERE deptno NOT IN(40,10,20);
+                </div>
+
+                <h3>LIKE Operator - Pattern Matching</h3>
+                <p>The LIKE operator has 4 main pattern types:</p>
+                <ol>
+                    <li><strong>First Character:</strong> S% (starts with 'S')</li>
+                    <li><strong>Last Character:</strong> %S (ends with 'S')</li>
+                    <li><strong>Second Character:</strong> _S% (second character is 'S')</li>
+                    <li><strong>Includes Character:</strong> %S% (contains 'S' anywhere)</li>
+                </ol>
+
+                <div class="code-block">
+-- LIKE operator examples
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE 'SM%';    -- Starts with 'SM'
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE 'M%';     -- Starts with 'M'
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE '%M_M%';  -- Contains 'M_M' pattern
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE '%M%';    -- Contains 'M'
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE '%S%';    -- Contains 'S'
+
+-- NULL checks
+SELECT empno,ename,sal,comm FROM emp WHERE comm IS NULL;
+SELECT empno,ename,sal,comm FROM emp WHERE comm IS NOT NULL;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Wildcards in LIKE:</strong>
+                    <ul>
+                        <li><strong>%</strong> - Matches zero or more characters</li>
+                        <li><strong>_</strong> - Matches exactly one character</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Logical Conditions</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operator</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>AND</td>
+                            <td>Returns TRUE if both component conditions are true</td>
+                        </tr>
+                        <tr>
+                            <td>OR</td>
+                            <td>Returns TRUE if either component condition is true</td>
+                        </tr>
+                        <tr>
+                            <td>NOT</td>
+                            <td>Returns TRUE if the following condition is false</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>A Logical Condition combines the result of two component conditions to produce a single result. A row is returned only if the result of the condition is true.</p>
+
+                <div class="code-block">
+-- AND operator - both conditions must be true
+SELECT empno,ename,sal,deptno FROM emp 
+WHERE sal > 800 AND deptno = 10;
+
+-- OR operator - either condition can be true
+SELECT ename,job,sal FROM emp 
+WHERE job = 'CLERK' AND sal > 3000 OR job = 'SALESMAN';
+
+-- More complex example
+SELECT ename,job,sal FROM emp 
+WHERE job IN ('CLERK','SALESMAN') AND sal > 3000 OR job = 'SALESMAN';
+
+-- NOT operator examples
+SELECT empno,ename,deptno FROM emp WHERE deptno NOT IN (10,20);
+SELECT empno,ename,sal FROM emp WHERE sal NOT BETWEEN 800 AND 2000;
+SELECT empno,ename,job FROM emp WHERE ename NOT LIKE '%A%';
+SELECT empno,ename,comm FROM EMP WHERE COMM IS NOT NULL;
+                </div>
+
+                <div class="note-box">
+                    <strong>Operator Precedence:</strong> NOT has highest precedence, followed by AND, then OR. Use parentheses to override default precedence.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Using the ORDER BY Clause</h2>
+                
+                <p>Sort the rows using the ORDER BY Clause:</p>
+                <ul>
+                    <li><strong>ASC</strong> - Ascending order (default)</li>
+                    <li><strong>DESC</strong> - Descending order</li>
+                </ul>
+
+                <div class="warning-box">
+                    <strong>Important:</strong> The ORDER BY clause comes last in the SELECT statement.
+                </div>
+
+                <h3>Basic Sorting:</h3>
+                <div class="code-block">
+-- Sort by salary (ascending - default)
+SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY sal;
+
+-- Sort by salary (descending)
+SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY sal DESC;
+
+-- Sort by name
+SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY ename;
+SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY ename DESC;
+
+-- Sort by date
+SELECT EMPNO,ENAME,hiredate FROM EMP ORDER BY hiredate;
+SELECT EMPNO,ENAME,HIREDATE FROM EMP ORDER BY hiredate DESC;
+                </div>
+
+                <h3>NULL Handling in Sorting:</h3>
+                <div class="code-block">
+-- NULL values appear last in ASC order
+SELECT EMPNO,comm,SAL FROM EMP ORDER BY comm;
+
+-- NULL values appear first in DESC order
+SELECT EMPNO,comm,SAL FROM EMP ORDER BY comm DESC;
+                </div>
+
+                <h3>Sorting with Aliases:</h3>
+                <div class="code-block">
+-- Sort using column alias
+SELECT empno,ename,sal * 12 annsal FROM emp ORDER BY annsal;
+
+-- Sort using expression (same as alias)
+SELECT empno,ename,sal * 12 annsal FROM emp ORDER BY sal * 12;
+
+-- Sort by column not in SELECT clause
+SELECT empno,ename,deptno FROM emp ORDER BY sal;
+                </div>
+
+                <h3>Multiple Column Sorting:</h3>
+                <div class="code-block">
+-- Sort by department first, then by salary descending
+SELECT empno,sal,deptno FROM emp ORDER BY deptno,sal DESC;
+
+-- Both columns descending
+SELECT empno,sal,deptno FROM emp ORDER BY deptno DESC,sal DESC;
+
+-- Sort using column positions (not recommended)
+SELECT empno,sal,deptno FROM emp ORDER BY 3,2,1;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Substitution Variables</h2>
+                
+                <p>Use substitution variables to temporarily store values with & and &&.</p>
+
+                <h3>Use substitution variables in:</h3>
+                <ol>
+                    <li>WHERE conditions</li>
+                    <li>ORDER BY clause</li>
+                    <li>Column Expressions</li>
+                    <li>Table Names</li>
+                    <li>Entire SELECT statement</li>
+                </ol>
+
+                <div class="code-block">
+-- Single ampersand (&) - prompts each time
+SELECT empno,ename,sal FROM emp WHERE ename = '&ENAME';
+
+-- For numeric values (no quotes needed)
+SELECT empno,ename,sal FROM emp WHERE sal = &salary;
+
+-- For dates
+SELECT empno,ename,hiredate FROM emp WHERE hiredate = '&date';
+
+-- Double ampersand (&&) - stores value for session
+SELECT empno,ename,sal FROM emp WHERE ename = '&&ENAME';
+
+-- Disable substitution variable scanning
+SET SCAN OFF;
+SELECT '&ABC' x FROM dual;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. Advanced Substitution Variables</h2>
+                
+                <p>Specify column names, expressions, and text using substitution variables:</p>
+
+                <div class="code-block">
+-- Dynamic column selection and conditions
+SELECT empno,ename,deptno,&col_name
+FROM emp
+WHERE &condition
+ORDER BY &order_by;
+
+-- Examples of different substitution patterns
+SELECT empno,ename,sal FROM emp WHERE ENAME = '&ENAME';
+SELECT empno,hiredate,ename,sal FROM emp WHERE hiredate = &hiredate;
+
+-- Reusing substitution variables with &&
+SELECT empno,ename,sal FROM emp WHERE ename = '&&ENAME';
+-- The value will be reused in subsequent queries in the same session
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Best Practice:</strong> Use single quotes around substitution variables for character and date values, but not for numeric values.
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter1.html">← Chapter 1: SELECT Statement</a>
+                <a href="chapter3.html">Next: Chapter 3 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

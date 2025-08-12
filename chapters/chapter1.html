@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: Retrieving Data using the SELECT SQL Statement</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 1 (Ch 1-8)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter1.html">Ch 1: SELECT Statement</a></li>
+                        <li><a href="chapter2.html">Ch 2: Restricting & Sorting</a></li>
+                        <li><a href="chapter3.html">Ch 3: Single Row Functions</a></li>
+                        <li><a href="chapter4.html">Ch 4: Group Functions</a></li>
+                        <li><a href="chapter5.html">Ch 5: Multiple Tables</a></li>
+                        <li><a href="chapter6.html">Ch 6: Subqueries</a></li>
+                        <li><a href="chapter7.html">Ch 7: Set Operators</a></li>
+                        <li><a href="chapter8.html">Ch 8: Manipulating Data</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 1: Retrieving Data using the SELECT SQL Statement</h1>
+            <p>Learn the fundamentals of SQL SELECT statements and data retrieval</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Capabilities of SQL SELECT Statement</h2>
+                <p>A SELECT Statement retrieves information from a Database. With the SELECT statement the following are the capabilities:</p>
+                
+                <ul>
+                    <li><strong>Projection:</strong> Choose the columns in a table returned by the Query. Choose certain columns or all the columns from the Table.</li>
+                    <li><strong>Selection:</strong> Choose the rows in a table returned by the Query. Choose certain rows using various conditions.</li>
+                    <li><strong>Joining:</strong> Bring together data from more than one table by specifying joins.</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Basic SELECT Statement</h2>
+                
+                <h3>Syntax:</h3>
+                <div class="code-block">
+SELECT *|{[DISTINCT] column|expression [aliases],...}
+FROM table
+/
+                </div>
+
+                <h3>In the syntax:</h3>
+                <ul>
+                    <li><strong>SELECT</strong> - is a list of one or more columns</li>
+                    <li><strong>*</strong> - selects all the columns</li>
+                    <li><strong>DISTINCT</strong> - suppresses the duplicate records</li>
+                    <li><strong>column|expression</strong> - selects the named column or expression</li>
+                    <li><strong>alias</strong> - gives selected column different headings i.e column names</li>
+                    <li><strong>FROM table</strong> - specifies the table containing columns</li>
+                </ul>
+
+                <div class="note-box">
+                    <strong>Key Points:</strong>
+                    <ul>
+                        <li>SELECT identifies the columns to be displayed</li>
+                        <li>FROM identifies the table containing those columns</li>
+                        <li>A keyword refers to an individual SQL element (SELECT and FROM are keywords)</li>
+                        <li>A clause is a part of a SQL statement (SELECT empno,ename.. is a clause)</li>
+                        <li>A statement is a combination of two or more clauses (SELECT * FROM emp is a SQL statement)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Selecting All Columns</h2>
+                
+                <div class="code-block">
+SELECT *
+FROM emp;
+
+SELECT *
+FROM emp/
+
+SELECT * 
+FROM emp;
+                </div>
+
+                <p>This selects all columns and all rows from EMP Table. We can even select all the columns by explicitly giving the column names:</p>
+
+                <div class="code-block">
+SELECT empno,ename,job,mgr,hiredate,sal,comm,deptno
+FROM EMP;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Selecting Specific Columns</h2>
+                
+                <div class="code-block">
+SELECT empno,ename
+FROM EMP;
+
+SELECT empno, ename
+FROM EMP;
+                </div>
+
+                <h3>Guidelines in writing SQL Statements:</h3>
+                <ol>
+                    <li>SQL statements are not case sensitive</li>
+                    <li>SQL statements can be on one or more lines</li>
+                    <li>Keywords cannot be abbreviated or split across lines</li>
+                    <li>Clauses are usually placed on separate lines</li>
+                    <li>Indents are used to enhance readability</li>
+                    <li>In SQL*Plus we are required to end each SQL statement using ; or /</li>
+                </ol>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Column Heading Defaults</h2>
+                
+                <ul>
+                    <li>Character and Date Column headings are left-aligned</li>
+                    <li>Number column headings are right-aligned</li>
+                    <li>Default heading display is in UPPERCASE</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Arithmetic Expressions</h2>
+                
+                <p>The following arithmetic expressions can be used in Oracle SQL:</p>
+                <ul>
+                    <li><strong>+</strong> Add</li>
+                    <li><strong>-</strong> Subtract</li>
+                    <li><strong>*</strong> Multiply</li>
+                    <li><strong>/</strong> Divide</li>
+                </ul>
+
+                <p>For number datatypes the arithmetic expressions can be used:</p>
+
+                <div class="code-block">
+SELECT ename,sal,sal + 100
+FROM emp;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Operator Precedence:</strong> If an arithmetic expression contains more than one operator, multiplication and division are evaluated first. Parentheses are used to override the default precedence.
+                </div>
+
+                <div class="code-block">
+SELECT ename,sal,12 * sal
+FROM emp;
+
+SELECT ename,sal,12 * sal + 100
+FROM emp;
+
+SELECT ename,sal,SAL + 100 * 12
+FROM emp;
+
+SELECT ename,sal,12 * (sal + 100)
+FROM emp;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. Defining a NULL Value</h2>
+                
+                <ul>
+                    <li>A NULL is a value that is unavailable, unassigned, unknown</li>
+                    <li>A NULL is not the same as a zero or a blank space</li>
+                    <li>Columns of any datatype can contain null values</li>
+                </ul>
+
+                <div class="code-block">
+SELECT ename,job,comm
+FROM EMP;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>8. Null Values in Arithmetic Expressions</h2>
+                
+                <p>Arithmetic expressions containing a NULL value evaluate to NULL.</p>
+
+                <div class="code-block">
+SELECT ename,sal,comm,sal * comm
+FROM EMP;
+                </div>
+
+                <div class="warning-box">
+                    <strong>Important:</strong> Any arithmetic operation with NULL results in NULL.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>9. Defining Column Aliases</h2>
+                
+                <p>A Column Alias:</p>
+                <ul>
+                    <li>Renames a Column heading at run time</li>
+                    <li>Is useful during calculations</li>
+                    <li>Immediately follows the column name. The AS keyword can be used optionally between the column name and alias</li>
+                    <li>Requires double quotation marks (" ") if the alias contains spaces or is case sensitive</li>
+                </ul>
+
+                <div class="code-block">
+SELECT ename AS name,sal AS salary
+FROM EMP;
+
+SELECT ename name,sal salary
+FROM EMP;
+
+SELECT ename "Name",sal "Salary"
+FROM EMP;
+
+SELECT ename "Emp Name",sal * 12 "Annual Salary"
+FROM EMP;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>10. Concatenation Operator</h2>
+                
+                <p>A Concatenation Operator:</p>
+                <ul>
+                    <li>Links columns or character strings to other columns</li>
+                    <li>Is represented by two vertical bars (||)</li>
+                    <li>Creates a resultant column that is a character expression</li>
+                </ul>
+
+                <div class="code-block">
+SELECT ename||job
+FROM EMP;
+
+SELECT ename||job AS "Employee and Designation"
+FROM EMP;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>11. Literal Character Strings</h2>
+                
+                <ul>
+                    <li>A literal is a character, a number, or a date included in SELECT statement</li>
+                    <li>Date and character literal values must be enclosed within single quotation marks</li>
+                    <li>Each character string is output once for each row returned</li>
+                </ul>
+
+                <div class="code-block">
+SELECT ename ||' is a '||job "Employee Details"
+FROM EMP;
+
+SELECT ename||': 1 Month Salary = '||sal "Monthly Salary"
+FROM EMP;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>12. Alternative Quote (q) Operator</h2>
+                
+                <ul>
+                    <li>Specify your own quotation mark delimiter</li>
+                    <li>Choose any convenient delimiter</li>
+                    <li>Increase readability and usability</li>
+                </ul>
+
+                <p>We can choose a convenient delimiter like [], {}, () or <>:</p>
+
+                <div class="code-block">
+SELECT ename||
+q'[ it's assigned Manager ID: ]'
+||mgr
+AS "Employee and Manager ID"
+FROM emp;
+
+SELECT ename||
+q'{, it's assigned Manager ID: }'
+||mgr
+AS "Employee and Manager ID"
+FROM emp;
+
+SELECT ename||
+q'<, it's assigned Manager ID: >'
+||mgr
+AS "Employee and Manager ID"
+FROM emp;
+                </div>
+
+                <h3>Example without Q Operator:</h3>
+                <div class="code-block">
+SELECT ename||'''s salary is '||sal "Without q Operator" 
+FROM emp;
+
+SELECT 'A ''double quoted'' word.' AS text FROM dual;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>13. Duplicate Rows</h2>
+                
+                <p>The default display of queries is all rows including duplicate rows.</p>
+
+                <div class="code-block">
+-- Shows all department numbers including duplicates
+SELECT deptno
+FROM EMP;
+
+-- Shows unique department numbers only
+SELECT DISTINCT deptno
+FROM EMP;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>14. Displaying the Table Structure</h2>
+                
+                <p>Use the Describe command to display the structure of a Table:</p>
+
+                <div class="code-block">
+DESCRIBE emp;
+
+DESC emp;
+                </div>
+
+                <ul>
+                    <li><strong>NULL</strong> - indicates that the values of this column can contain NULL values</li>
+                    <li><strong>NOT NULL</strong> - indicates that the values of this column cannot contain NULL values</li>
+                </ul>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="../index.html">← Back to Home</a>
+                <a href="chapter2.html">Next: Chapter 2 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

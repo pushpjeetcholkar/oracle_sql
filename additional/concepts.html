@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Additional Concepts - Oracle SQL</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="concepts.html" class="nav-link active">Additional Concepts</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Additional Concepts</h1>
+            <p>Advanced Oracle SQL concepts and practical examples</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Date Calculations</h2>
+                
+                <h3>Calculate Days Between Dates</h3>
+                <p>SQL Query to calculate the number of days from a specific date compared to SYSDATE:</p>
+
+                <div class="code-block">
+SELECT ROUND(SYSDATE - TO_DATE('31-JAN-2015','DD-MON-YYYY'))||' Days' "Days" 
+FROM dual;
+                </div>
+
+                <div class="note-box">
+                    <strong>Note:</strong> When you subtract two dates in Oracle, the result is the number of days between them.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Table Access Control</h2>
+                
+                <h3>Modify Table as READ-ONLY</h3>
+                <p>You can make a table read-only to prevent any DML operations:</p>
+
+                <div class="code-block">
+-- Create a test table
+CREATE TABLE test_table(id NUMBER);
+
+-- Insert some data
+INSERT INTO test_table VALUES(100);
+
+-- Make table read-only
+ALTER TABLE test_table READ ONLY;
+
+-- Make table read-write again
+ALTER TABLE test_table READ WRITE;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Use Case:</strong> READ ONLY mode is useful during maintenance windows or when you want to prevent accidental data modifications.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Hierarchical Queries</h2>
+                
+                <h3>Bottom-Up Tree Structure</h3>
+                <p>Query to display a bottom-up tree structure using hierarchical queries:</p>
+
+                <div class="code-block">
+-- Display hierarchy from employee up to top management
+SELECT empno,ename,job,mgr,level
+FROM emp
+START WITH empno = 7369
+CONNECT BY PRIOR mgr = empno
+ORDER BY level;
+                </div>
+
+                <div class="note-box">
+                    <strong>Hierarchical Query Components:</strong>
+                    <ul>
+                        <li><strong>START WITH:</strong> Defines the root of the hierarchy</li>
+                        <li><strong>CONNECT BY PRIOR:</strong> Defines the relationship between parent and child</li>
+                        <li><strong>LEVEL:</strong> Pseudo-column showing the level in the hierarchy</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Query Execution Plans</h2>
+                
+                <h3>Using EXPLAIN PLAN</h3>
+                <p>Analyze how Oracle executes your queries:</p>
+
+                <div class="code-block">
+-- Generate execution plan for a query
+EXPLAIN PLAN FOR SELECT * FROM emp;
+
+-- View the execution plan
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+-- Another example
+EXPLAIN PLAN FOR SELECT * FROM dept;
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Performance Tuning:</strong> EXPLAIN PLAN helps you understand query performance and identify optimization opportunities.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. ESCAPE Operator</h2>
+                
+                <h3>Searching for Literal % and _ Characters</h3>
+                <p>Use the ESCAPE operator to search for actual % and _ symbols in column values:</p>
+
+                <div class="code-block">
+-- Create test table with special characters
+CREATE TABLE escape_table(name VARCHAR2(40));
+
+-- Insert test data
+INSERT INTO escape_table VALUES('ER');
+INSERT INTO escape_table VALUES('E_R');
+INSERT INTO escape_table VALUES('ER_R_R');
+INSERT INTO escape_table VALUES('_ER_R_R');
+INSERT INTO escape_table VALUES('ER_R_R_');
+
+-- View all data
+SELECT name FROM escape_table;
+                </div>
+
+                <h3>ESCAPE Operator Examples:</h3>
+                <div class="code-block">
+-- Find names with '_' in the second character
+SELECT * FROM escape_table WHERE name LIKE '_/_%' ESCAPE '/';
+
+-- Find names with '_' anywhere in the string
+SELECT * FROM escape_table WHERE name LIKE '%/_%' ESCAPE '/';
+
+-- Find names starting with '_'
+SELECT * FROM escape_table WHERE name LIKE '/_%' ESCAPE '/';
+
+-- Find names ending with '_'
+SELECT * FROM escape_table WHERE name LIKE '%/_' ESCAPE '/';
+
+-- Find exact pattern 'E_R'
+SELECT * FROM escape_table WHERE name LIKE 'E/_R%' ESCAPE '/';
+                </div>
+
+                <div class="note-box">
+                    <strong>ESCAPE Syntax:</strong> The character after ESCAPE (in this case '/') is used to escape the special meaning of % and _ wildcards.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. SQL Script File Handling</h2>
+                
+                <h3>Saving SQL Scripts</h3>
+                <div class="code-block">
+-- Save current buffer to a file
+SELECT ename,empno FROM emp WHERE ename = 'SMITH';
+SAVE 'E:\emp.sql';
+
+-- Save to Oracle home directory
+SAVE emp.sql;
+
+-- Replace existing file
+SAVE 'E:\emp.sql' REPLACE;
+
+-- Append to existing file
+SELECT ename,empno FROM emp WHERE sal = 800;
+SAVE 'E:\emp.sql' APPEND;
+                </div>
+
+                <h3>Running SQL Scripts</h3>
+                <div class="code-block">
+-- Run a SQL script file
+RUN 'E:\emp.sql';
+
+-- Alternative syntax
+@'E:\emp.sql';
+
+-- Run from Oracle home directory
+@emp.sql;
+                </div>
+
+                <h3>Spooling Output</h3>
+                <div class="code-block">
+-- Start spooling output to a file
+SPOOL emp.lst;
+SELECT * FROM emp;
+SPOOL OFF;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Spooling:</strong> Captures all output (query results, error messages, etc.) to a file for later review or processing.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. Database Links</h2>
+                
+                <p>Database links allow you to access objects in remote databases:</p>
+
+                <div class="code-block">
+-- Create a database link (requires appropriate privileges)
+CREATE DATABASE LINK remote_db
+CONNECT TO username IDENTIFIED BY password
+USING 'remote_tns_name';
+
+-- Query remote table
+SELECT * FROM emp@remote_db;
+
+-- Drop database link
+DROP DATABASE LINK remote_db;
+                </div>
+
+                <div class="note-box">
+                    <strong>Use Cases:</strong>
+                    <ul>
+                        <li>Accessing data from multiple databases</li>
+                        <li>Data migration between systems</li>
+                        <li>Distributed queries</li>
+                        <li>Replication and synchronization</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>8. Advanced Date Functions</h2>
+                
+                <div class="code-block">
+-- Current date and time
+SELECT SYSDATE FROM dual;
+
+-- Add/subtract days
+SELECT SYSDATE + 30 "30 Days Later",
+       SYSDATE - 7 "Week Ago"
+FROM dual;
+
+-- First and last day of month
+SELECT TRUNC(SYSDATE, 'MONTH') "First Day",
+       LAST_DAY(SYSDATE) "Last Day"
+FROM dual;
+
+-- Age calculation
+SELECT ename,
+       hiredate,
+       TRUNC(MONTHS_BETWEEN(SYSDATE, hiredate)/12) "Years Employed"
+FROM emp;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>9. Performance Tips</h2>
+                
+                <ul>
+                    <li><strong>Use indexes:</strong> Create indexes on frequently queried columns</li>
+                    <li><strong>Avoid SELECT *:</strong> Only select columns you need</li>
+                    <li><strong>Use WHERE clauses:</strong> Filter data as early as possible</li>
+                    <li><strong>Use EXPLAIN PLAN:</strong> Analyze query execution plans</li>
+                    <li><strong>Use bind variables:</strong> Improve SQL parsing performance</li>
+                    <li><strong>Avoid functions in WHERE:</strong> Functions on columns prevent index usage</li>
+                </ul>
+
+                <div class="code-block">
+-- Good: Index can be used
+SELECT * FROM emp WHERE empno = 7369;
+
+-- Bad: Function prevents index usage
+SELECT * FROM emp WHERE UPPER(ename) = 'SMITH';
+
+-- Better: Use functional index or store data in uppercase
+SELECT * FROM emp WHERE ename = 'SMITH';
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="../index.html">← Back to Home</a>
+                <a href="../chapters/chapter1.html">Start with Chapter 1 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

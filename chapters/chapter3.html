@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Using Single Row Functions to Customize Output</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 1 (Ch 1-8)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter1.html">Ch 1: SELECT Statement</a></li>
+                        <li><a href="chapter2.html">Ch 2: Restricting & Sorting</a></li>
+                        <li><a href="chapter3.html">Ch 3: Single Row Functions</a></li>
+                        <li><a href="chapter4.html">Ch 4: Group Functions</a></li>
+                        <li><a href="chapter5.html">Ch 5: Multiple Tables</a></li>
+                        <li><a href="chapter6.html">Ch 6: Subqueries</a></li>
+                        <li><a href="chapter7.html">Ch 7: Set Operators</a></li>
+                        <li><a href="chapter8.html">Ch 8: Manipulating Data</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 3: Using Single Row Functions to Customize Output</h1>
+            <p>Master character, numeric, date, and conversion functions</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Character Manipulation Functions</h2>
+                
+                <h3>LPAD & RPAD (Left and Right Padding)</h3>
+                <div class="code-block">
+-- Pad salary with asterisks (7 characters total)
+SELECT LPAD(SAL,7,'*'), RPAD(SAL,7,'*') FROM EMP;
+
+-- If length is less than data, truncates from right
+SELECT LPAD(SAL,2,'*'), RPAD(SAL,2,'*') FROM EMP;
+                </div>
+
+                <h3>LTRIM & RTRIM (Left and Right Trim)</h3>
+                <div class="code-block">
+-- Remove leading and trailing spaces
+SELECT LTRIM('    Removing LTRIM'), RTRIM('Removing RTRIM       ') 
+FROM DUAL;
+
+-- Trim employee names (if they have spaces)
+SELECT LTRIM(ENAME), RTRIM(ENAME) FROM EMP;
+                </div>
+
+                <h3>UPPER, LOWER & INITCAP (Case Conversion)</h3>
+                <div class="code-block">
+-- Convert case of employee names
+SELECT ENAME, UPPER(ENAME), LOWER(ENAME), INITCAP(ENAME)
+FROM EMP;
+                </div>
+
+                <h3>CONCAT (String Concatenation)</h3>
+                <div class="code-block">
+-- Concatenate employee name and job
+SELECT CONCAT(ENAME,JOB) FROM EMP;
+
+-- Concatenate literal strings
+SELECT CONCAT('Bill','Gates') FROM DUAL;
+
+-- Note: CONCAT only takes 2 arguments
+-- For multiple strings, use || operator instead
+SELECT ENAME || ' works as ' || JOB FROM EMP;
+                </div>
+
+                <h3>SUBSTR (Substring Extraction)</h3>
+                <div class="code-block">
+-- Get first character of name
+SELECT ename, SUBSTR(ename,1,1) FROM emp;
+
+-- Get entire string from position 1
+SELECT ename, SUBSTR(ename,1) FROM emp;
+
+-- Get last character (negative position)
+SELECT ename, SUBSTR(ename,-1) FROM emp;
+
+-- Get substring from position 2 to end
+SELECT ename, SUBSTR(ename,2) FROM emp;
+                </div>
+
+                <h3>INSTR (Find Position of Character)</h3>
+                <div class="code-block">
+-- Find position of 'L' in employee names
+SELECT ename, INSTR(ename,'L') FROM emp;
+                </div>
+
+                <div class="note-box">
+                    <strong>Character Function Summary:</strong>
+                    <ul>
+                        <li><strong>LPAD/RPAD:</strong> Pad strings to specified length</li>
+                        <li><strong>LTRIM/RTRIM:</strong> Remove leading/trailing characters</li>
+                        <li><strong>UPPER/LOWER/INITCAP:</strong> Change case</li>
+                        <li><strong>CONCAT:</strong> Join two strings</li>
+                        <li><strong>SUBSTR:</strong> Extract part of string</li>
+                        <li><strong>INSTR:</strong> Find position of substring</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Numerical Manipulation Functions</h2>
+                
+                <h3>MAX & MIN (Single Row Context)</h3>
+                <div class="code-block">
+-- Note: These are aggregate functions, shown here for comparison
+-- Finding the Maximum Salary from EMP Table
+SELECT MAX(SAL) FROM EMP;
+
+-- Finding the Minimum Salary from EMP Table
+SELECT MIN(SAL) FROM EMP;
+                </div>
+
+                <h3>GREATEST & LEAST</h3>
+                <div class="code-block">
+-- Finding the Greatest Value from a list
+SELECT GREATEST(100,200,300) FROM DUAL;
+
+-- Compare salary and commission for each employee
+SELECT SAL, COMM, GREATEST(SAL,COMM) FROM EMP;
+
+-- Finding the Least Value from a list
+SELECT LEAST(100,200,300) FROM DUAL;
+
+-- Compare salary and commission (least value)
+SELECT SAL, COMM, LEAST(SAL,COMM) FROM EMP;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Difference between GREATEST and MAX:</strong>
+                    <ul>
+                        <li><strong>GREATEST:</strong> Can accept multiple arguments, compares across columns</li>
+                        <li><strong>MAX:</strong> Aggregate function, works on multiple rows of single column</li>
+                    </ul>
+                </div>
+
+                <h3>ROUND (Rounding Numbers)</h3>
+                <div class="code-block">
+-- Rounding to the nearest decimal point
+SELECT ROUND(12.56) FROM DUAL;  -- Returns 13
+SELECT ROUND(12.34) FROM DUAL;  -- Returns 12
+
+-- Round to specific decimal places
+SELECT ROUND(12.567, 2) FROM DUAL;  -- Returns 12.57
+SELECT ROUND(1234.567, -2) FROM DUAL;  -- Returns 1200
+                </div>
+
+                <h3>TRUNC (Truncating Numbers)</h3>
+                <div class="code-block">
+-- Truncate decimal places (no rounding)
+SELECT TRUNC(12.56) FROM DUAL;  -- Returns 12
+SELECT TRUNC(12.99) FROM DUAL;  -- Returns 12
+
+-- Truncate to specific decimal places
+SELECT TRUNC(12.567, 2) FROM DUAL;  -- Returns 12.56
+SELECT TRUNC(1234.567, -2) FROM DUAL;  -- Returns 1200
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Date Manipulation Functions</h2>
+                
+                <h3>MONTHS_BETWEEN</h3>
+                <div class="code-block">
+-- Calculate months between current date and hire date
+SELECT empno, ename, hiredate, sysdate, 
+       MONTHS_BETWEEN(sysdate,hiredate) 
+FROM emp;
+
+-- Calculate months between specific date and hire date
+SELECT EMPNO, ENAME, HIREDATE, '01-JAN-2000',
+       MONTHS_BETWEEN('01-JAN-2000',HIREDATE) 
+FROM EMP;
+
+-- Round the result for cleaner output
+SELECT EMPNO, ENAME, HIREDATE, SYSDATE,
+       ROUND(MONTHS_BETWEEN(SYSDATE,HIREDATE)) 
+FROM EMP;
+                </div>
+
+                <h3>ADD_MONTHS</h3>
+                <div class="code-block">
+-- Add 3 months to current date
+SELECT ADD_MONTHS(SYSDATE,3) FROM DUAL;
+
+-- Subtract months (use negative number)
+SELECT ADD_MONTHS(SYSDATE,-6) FROM DUAL;
+                </div>
+
+                <h3>NEXT_DAY</h3>
+                <div class="code-block">
+-- Find next Wednesday from current date
+SELECT NEXT_DAY(SYSDATE,'WED') FROM DUAL;
+SELECT NEXT_DAY(SYSDATE,'WEDNESDAY') FROM DUAL;
+                </div>
+
+                <h3>LAST_DAY</h3>
+                <div class="code-block">
+-- Find last day of the month
+SELECT LAST_DAY('01-JAN-2001') FROM DUAL;
+SELECT LAST_DAY('16-FEB-2001') FROM DUAL;
+SELECT LAST_DAY(SYSDATE) FROM DUAL;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Datatype Conversion Functions</h2>
+                
+                <h3>TO_CHAR (Convert to Character)</h3>
+                
+                <h4>Date to Character Conversion:</h4>
+                <div class="code-block">
+-- Convert hire date to different formats
+SELECT EMPNO, HIREDATE, TO_CHAR(HIREDATE,'DD/MM/YYYY') "Date Hired"
+FROM EMP;
+
+SELECT EMPNO, HIREDATE, TO_CHAR(HIREDATE,'YYYY') "Year Hired"
+FROM EMP;
+
+SELECT EMPNO, TO_CHAR(HIREDATE,'Month') "Month Hired"
+FROM EMP;
+
+SELECT EMPNO, TO_CHAR(HIREDATE,'MONTH') "MONTH Hired"
+FROM EMP;
+
+SELECT EMPNO, TO_CHAR(HIREDATE,'Year') "Year Hired"
+FROM EMP;
+                </div>
+
+                <h4>Number to Character Conversion:</h4>
+                <div class="code-block">
+-- Format salary with various number formats
+SELECT
+SAL,
+TO_CHAR(SAL,'999999') "Display Width",
+TO_CHAR(SAL,'099999') "Leading zeros",
+TO_CHAR(SAL,'$99999') "Dollar Sign",
+TO_CHAR(SAL,'L99999') "Local currency",
+TO_CHAR(SAL,'999,999') "With Comma",
+TO_CHAR(SAL,'9999.9') "Decimal Point"
+FROM EMP;
+                </div>
+
+                <h4>FM Format Model (Fill Mode):</h4>
+                <div class="code-block">
+-- FM removes leading zeros and trailing blanks
+SELECT hiredate, 
+       TO_CHAR(hiredate,'Month DD,YYYY'),
+       TO_CHAR(hiredate,'FMMonth DD,YYYY')
+FROM emp;
+
+-- Ordinal numbers
+SELECT TO_CHAR(hiredate,'FMMon Ddth,YYYY') FROM emp;
+SELECT TO_CHAR(hiredate,'FMMon DDTH,YYYY') FROM emp;
+                </div>
+
+                <h4>Day and Week Functions:</h4>
+                <div class="code-block">
+-- Get day names and numbers
+SELECT ENAME, hiredate, 
+       TO_CHAR(hiredate,'Day') "Day Name",
+       TO_CHAR(hiredate,'D') "Day Number"
+FROM emp;
+
+-- Week number in month (1-5)
+SELECT TO_CHAR(SYSDATE,'W') FROM dual;
+SELECT TO_CHAR(TO_DATE('01-SEP-2015','DD-MON-YYYY'),'W') FROM dual;
+                </div>
+
+                <h3>TO_NUMBER (Convert to Number)</h3>
+                <div class="code-block">
+-- Convert string to number
+SELECT TO_NUMBER('12') FROM DUAL;
+SELECT TO_NUMBER('123.45') FROM DUAL;
+                </div>
+
+                <h3>TO_DATE (Convert to Date)</h3>
+                <div class="code-block">
+-- Convert string to date with format
+SELECT TO_DATE('01/03/02','DD/MM/YY') FROM DUAL;
+SELECT TO_DATE('010302','DDMMYY') FROM DUAL;
+SELECT TO_DATE('2023-12-25','YYYY-MM-DD') FROM DUAL;
+                </div>
+
+                <h3>Date Arithmetic Examples:</h3>
+                <div class="code-block">
+-- Calculate weeks employed
+SELECT ENAME, ((SYSDATE - HIREDATE) / 7) Weeks FROM EMP;
+SELECT ENAME, ROUND((SYSDATE - HIREDATE) / 7) Weeks FROM EMP;
+                </div>
+
+                <h3>Advanced Date Formatting:</h3>
+                <div class="code-block">
+-- Spell out numbers
+SELECT TO_CHAR(SYSDATE,'DDsp Month YYYY') FROM DUAL;
+
+-- Julian dates
+SELECT to_char(to_date('100','j'),'jsp') from dual;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. NULL Value Functions</h2>
+                
+                <h3>NVL (Null Value)</h3>
+                <div class="code-block">
+-- Replace NULL commission with 0
+SELECT COMM "Commission", NVL(COMM,0) "New Commission"
+FROM EMP;
+
+-- Replace NULL with text
+SELECT COMM "Commission", NVL(COMM,'No Commission') "New Commission"
+FROM EMP;
+
+-- Convert to character first for mixed types
+SELECT comm, NVL(TO_CHAR(COMM),'No Commission') "Commission" 
+FROM EMP;
+                </div>
+
+                <h3>NVL2 (Enhanced Null Value)</h3>
+                <div class="code-block">
+-- If COMM is NOT NULL return first value, else return second
+SELECT COMM "Commission", NVL2(COMM,'Has Commission','No Commission') 
+FROM EMP;
+
+-- Calculate total income based on commission existence
+SELECT ename, sal, comm, 
+       NVL2(comm, sal + comm, sal) "Total Income"
+FROM emp;
+                </div>
+
+                <h3>NULLIF</h3>
+                <div class="code-block">
+-- Return NULL if expressions are equal, otherwise first expression
+SELECT comm "Commission", NULLIF(comm,0) "New Commission"
+FROM emp;
+
+-- Examples with literals
+SELECT NULLIF(1,0) "Different", NULLIF(1,1) "Same" FROM DUAL;
+
+-- Compare string lengths
+SELECT LENGTH(ENAME), LENGTH(JOB),
+       NULLIF(LENGTH(ENAME),LENGTH(JOB)) AS "Length Diff"
+FROM EMP;
+                </div>
+
+                <h3>COALESCE</h3>
+                <div class="code-block">
+-- Return first non-NULL expression
+SELECT ENAME, mgr, comm,
+       COALESCE(mgr, comm, -1) "First Non-NULL"
+FROM EMP;
+
+-- Multiple NULL handling
+SELECT COALESCE(NULL, 100, -1) FROM dual;
+SELECT COALESCE(NULL, NULL, -1) FROM dual;
+SELECT COALESCE(NULL, NULL, 2, NULL, 3, NULL, -1) FROM dual;
+                </div>
+
+                <div class="note-box">
+                    <strong>NULL Function Comparison:</strong>
+                    <ul>
+                        <li><strong>NVL:</strong> 2 parameters, replaces NULL with specified value</li>
+                        <li><strong>NVL2:</strong> 3 parameters, different values for NULL and NOT NULL</li>
+                        <li><strong>NULLIF:</strong> Returns NULL if expressions are equal</li>
+                        <li><strong>COALESCE:</strong> Multiple parameters, returns first non-NULL</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Conditional Logic Functions</h2>
+                
+                <h3>CASE Expression</h3>
+                <div class="code-block">
+-- Simple CASE: multiply salaries based on job
+SELECT EMPNO, ENAME, JOB, SAL "Original Salary",
+CASE JOB
+    WHEN 'CLERK' THEN SAL * 1.10
+    WHEN 'MANAGER' THEN SAL * 1.20
+    WHEN 'SALESMAN' THEN SAL * 1.15
+    ELSE SAL
+END "Revised Salary"
+FROM EMP;
+
+-- Searched CASE with conditions
+SELECT EMPNO, ENAME, SAL,
+CASE 
+    WHEN SAL < 1000 THEN 'Low'
+    WHEN SAL BETWEEN 1000 AND 3000 THEN 'Medium'
+    WHEN SAL > 3000 THEN 'High'
+    ELSE 'Unknown'
+END "Salary Grade"
+FROM EMP;
+                </div>
+
+                <h3>DECODE Function</h3>
+                <div class="code-block">
+-- DECODE: Oracle-specific conditional logic
+SELECT EMPNO, ENAME, JOB, SAL "Original Salary",
+DECODE(JOB, 'CLERK', SAL * 1.10,
+            'MANAGER', SAL * 1.20,
+            'SALESMAN', SAL * 1.15,
+            SAL) "Revised Salary"
+FROM EMP;
+
+-- Nested DECODE with CASE
+SELECT sal,
+DECODE(
+    CASE
+        WHEN sal < 2000 THEN 'LOW'
+        WHEN sal >= 2000 THEN 'HIGH'
+    END, 'LOW', 'Increase Needed', 'HIGH', 'Satisfactory'
+) "Salary Status"
+FROM EMP;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>CASE vs DECODE Differences:</strong>
+                    <ol>
+                        <li><strong>CASE:</strong> ANSI standard, more flexible with conditions</li>
+                        <li><strong>DECODE:</strong> Oracle proprietary, limited to equality comparisons</li>
+                        <li><strong>CASE:</strong> Can use operators like >, <, BETWEEN</li>
+                        <li><strong>DECODE:</strong> More concise for simple equality checks</li>
+                        <li><strong>CASE:</strong> Better readability for complex logic</li>
+                        <li><strong>DECODE:</strong> Maximum 255 arguments</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. Nested Functions</h2>
+                
+                <p>Functions can be nested to create complex expressions:</p>
+
+                <div class="code-block">
+-- Nested character functions
+SELECT ENAME,
+       UPPER(CONCAT(SUBSTR(ENAME,1,7),'_TH'))
+FROM EMP;
+
+SELECT ENAME,
+       INITCAP(CONCAT(SUBSTR(ENAME,1,3),'_TH'))
+FROM EMP;
+                </div>
+
+                <h3>Complex Nested Example:</h3>
+                <div class="code-block">
+-- Calculate next performance review date (6 months + next Friday)
+SELECT ENAME,
+       TO_CHAR(NEXT_DAY(ADD_MONTHS(HIREDATE,6),'FRIDAY'),
+               'fmDay, Month DDth, YYYY') "Next Review"
+FROM EMP 
+ORDER BY HIREDATE;
+
+-- More complex nested example
+SELECT INITCAP(ename) || ' next Performance Appraisal falls on ' ||
+       INITCAP(TO_CHAR(NEXT_DAY(ADD_MONTHS(HIREDATE,6),'FRIDAY'),
+                       'fmDay, Month DDth, YYYY')) "Review Schedule"
+FROM emp 
+ORDER BY HIREDATE;
+                </div>
+
+                <div class="note-box">
+                    <strong>Nested Function Tips:</strong>
+                    <ul>
+                        <li>Functions execute from inside out</li>
+                        <li>Each function's output becomes input for the outer function</li>
+                        <li>Use parentheses carefully to control execution order</li>
+                        <li>Test complex nested functions step by step</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter2.html">← Chapter 2: Restricting & Sorting</a>
+                <a href="chapter4.html">Next: Chapter 4 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6: Using Subqueries to Solve Queries</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 1 (Ch 1-8)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter1.html">Ch 1: SELECT Statement</a></li>
+                        <li><a href="chapter2.html">Ch 2: Restricting & Sorting</a></li>
+                        <li><a href="chapter3.html">Ch 3: Single Row Functions</a></li>
+                        <li><a href="chapter4.html">Ch 4: Group Functions</a></li>
+                        <li><a href="chapter5.html">Ch 5: Multiple Tables</a></li>
+                        <li><a href="chapter6.html">Ch 6: Subqueries</a></li>
+                        <li><a href="chapter7.html">Ch 7: Set Operators</a></li>
+                        <li><a href="chapter8.html">Ch 8: Manipulating Data</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 6: Using Subqueries to Solve Queries</h1>
+            <p>Master the power of nested queries and advanced data retrieval</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Using a Subquery to Solve a Problem</h2>
+                
+                <h3>Problem Example:</h3>
+                <p>Find out who has a salary greater than the employee 'SMITH'.</p>
+
+                <p>To solve this, we need to divide it into two sections:</p>
+                <ol>
+                    <li>Find the salary of SMITH</li>
+                    <li>Find those salaries greater than SMITH's salary</li>
+                </ol>
+
+                <p>Instead of writing two separate queries, we can use a subquery:</p>
+
+                <div class="code-block">
+-- Find employees with salary greater than SMITH
+SELECT EMPNO,ENAME,SAL
+FROM EMP
+WHERE SAL > (SELECT SAL FROM EMP WHERE ENAME = 'SMITH');
+
+-- Include SMITH in results (greater than or equal)
+SELECT EMPNO,ENAME,SAL
+FROM EMP
+WHERE SAL >= (SELECT SAL FROM EMP WHERE ENAME = 'SMITH');
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Key Concepts:</strong>
+                    <ul>
+                        <li><strong>Inner Query:</strong> Executes first and returns SMITH's salary</li>
+                        <li><strong>Outer Query:</strong> Uses the inner query result to find matching records</li>
+                        <li><strong>Execution Order:</strong> Subquery executes once before the main query</li>
+                        <li><strong>Nesting Limit:</strong> You can nest up to 255 levels of subqueries</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Types of Subqueries</h2>
+                
+                <h3>Single-Row Subquery</h3>
+                <p>Returns only one row and uses single-row comparison operators (=, >, <, >=, <=, <>).</p>
+
+                <div class="code-block">
+-- Find employees with same job as employee 7369
+SELECT ENAME,JOB
+FROM EMP 
+WHERE JOB = (SELECT JOB FROM EMP WHERE EMPNO = 7369);
+
+-- Find job of employee 7369
+SELECT job FROM emp WHERE empno = 7369;
+
+-- Find salary of employee 7369
+SELECT sal FROM emp WHERE empno = 7369;
+                </div>
+
+                <h3>Complex Single-Row Subquery Example:</h3>
+                <div class="code-block">
+-- Find employees with same job as 7369 AND salary greater than 7369
+SELECT empno,ename,sal,job
+FROM emp
+WHERE job = (SELECT job FROM emp WHERE empno = 7369)
+AND sal > (SELECT sal FROM emp WHERE empno = 7369);
+                </div>
+
+                <h3>Multiple-Row Subquery</h3>
+                <p>Returns more than one row and uses multiple-row comparison operators (IN, ANY, ALL).</p>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Using Group Functions in Subqueries</h2>
+                
+                <p>Display data from a main query by using group functions in subqueries to return single values.</p>
+
+                <div class="code-block">
+-- Find employees with minimum salary
+SELECT empno,ename,job,sal
+FROM emp
+WHERE sal = (SELECT MIN(sal) FROM emp);
+                </div>
+
+                <h3>HAVING Clause with Subqueries</h3>
+                <p>Inner query executes first, then results are passed to the outer query's HAVING clause.</p>
+
+                <div class="code-block">
+-- Find minimum salary for department 10
+SELECT MIN(SAL) FROM EMP WHERE DEPTNO = 10;
+
+-- Find all departments with min salary less than dept 10
+SELECT DEPTNO,MIN(SAL)
+FROM EMP 
+GROUP BY DEPTNO 
+HAVING MIN(SAL) < (SELECT MIN(SAL) FROM EMP WHERE DEPTNO = 10);
+                </div>
+
+                <h3>Common Subquery Issues:</h3>
+                <div class="warning-box">
+                    <strong>Error Example:</strong>
+                    <div class="code-block">
+-- This will cause an error (multiple rows returned)
+SELECT empno,ename
+FROM EMP
+WHERE SAL = (SELECT MIN(SAL) FROM EMP GROUP BY DEPTNO);
+                    </div>
+                    <p><strong>Solution:</strong> Use IN operator instead of = for multiple rows</p>
+                </div>
+
+                <div class="code-block">
+-- Correct way - using IN operator
+SELECT empno,ename,sal,deptno
+FROM EMP
+WHERE SAL IN (SELECT MIN(SAL) FROM EMP GROUP BY DEPTNO);
+                </div>
+
+                <h3>Advanced Group Function Example:</h3>
+                <div class="code-block">
+-- Find maximum average salary by department
+SELECT ROUND(MAX(AVG(sal))) max
+FROM emp 
+GROUP BY deptno;
+
+-- Find employees with salary equal to max average salary
+SELECT empno,ename,sal,deptno
+FROM EMP
+WHERE sal = (SELECT ROUND(MAX(AVG(sal))) FROM emp GROUP BY deptno);
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Multiple-Row Subqueries</h2>
+                
+                <p>These subqueries return more than one row and use multiple-row comparison operators:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operator</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>IN</td>
+                            <td>Equal to any row in the list</td>
+                        </tr>
+                        <tr>
+                            <td>ANY</td>
+                            <td>Compare value to each value returned by the subquery</td>
+                        </tr>
+                        <tr>
+                            <td>ALL</td>
+                            <td>Compare value to every value returned by the subquery</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>IN Operator:</h3>
+                <div class="code-block">
+-- Find employees with minimum salary in each department
+SELECT empno,ename
+FROM EMP
+WHERE SAL IN (SELECT MIN(SAL) FROM EMP GROUP BY DEPTNO);
+
+-- Oracle executes this as:
+-- WHERE SAL IN (950,800,1300)
+                </div>
+
+                <h3>ANY Operator:</h3>
+                <div class="code-block">
+-- Get salaries in department 10
+SELECT SAL,DEPTNO FROM EMP WHERE DEPTNO = 10;
+
+-- > ANY: Greater than minimum value in the list
+SELECT EMPNO,ENAME,SAL,DEPTNO FROM EMP
+WHERE SAL > ANY (SELECT SAL FROM EMP WHERE DEPTNO = 10);
+
+-- < ANY: Less than maximum value in the list
+SELECT EMPNO,ENAME,SAL,DEPTNO FROM EMP
+WHERE SAL < ANY (SELECT SAL FROM EMP WHERE DEPTNO = 10);
+                </div>
+
+                <h3>ALL Operator:</h3>
+                <div class="code-block">
+-- > ALL: Greater than maximum value in the list
+SELECT EMPNO,ENAME,SAL,DEPTNO FROM EMP
+WHERE SAL > ALL (SELECT SAL FROM EMP WHERE DEPTNO = 10)
+ORDER BY SAL;
+
+-- < ALL: Less than minimum value in the list
+SELECT EMPNO,ENAME,SAL,DEPTNO FROM EMP
+WHERE SAL < ALL (SELECT SAL FROM EMP WHERE DEPTNO = 10)
+ORDER BY SAL;
+                </div>
+
+                <h3>ALL Operator Example:</h3>
+                <div class="code-block">
+-- Find salary greater than all specified values
+SELECT empno,sal
+FROM emp
+WHERE sal > ALL (2000,3000,4000);
+
+-- Equivalent to:
+SELECT empno,sal
+FROM emp
+WHERE sal > 2000 AND sal > 3000 AND sal > 4000;
+                </div>
+
+                <div class="note-box">
+                    <strong>ANY vs ALL:</strong>
+                    <ul>
+                        <li><strong>&gt; ANY:</strong> Greater than the minimum value</li>
+                        <li><strong>&gt; ALL:</strong> Greater than the maximum value</li>
+                        <li><strong>&lt; ANY:</strong> Less than the maximum value</li>
+                        <li><strong>&lt; ALL:</strong> Less than the minimum value</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. NULL Values in Subqueries</h2>
+                
+                <div class="warning-box">
+                    <strong>Problem with NOT IN and NULL:</strong>
+                    <div class="code-block">
+-- This query returns no rows if subquery contains NULL
+SELECT emp.ename
+FROM emp
+WHERE emp.empno NOT IN (SELECT a.mgr FROM EMP a);
+                    </div>
+                    <p>This fails because the inner query returns NULL values, making the entire condition evaluate to NULL.</p>
+                </div>
+
+                <h3>Solutions for NULL Handling:</h3>
+                <div class="code-block">
+-- Use IN operator (works with NULL)
+-- Display employees who have subordinates
+SELECT emp.ename,emp.job
+FROM emp
+WHERE emp.empno IN (SELECT mgr.mgr FROM emp mgr);
+
+-- Use NOT IN with NULL filtering
+-- Display employees who do not have subordinates
+SELECT emp.ename,mgr,job
+FROM emp
+WHERE emp.empno NOT IN (
+    SELECT MGR.MGR FROM EMP MGR WHERE MGR.MGR IS NOT NULL
+);
+                </div>
+
+                <h3>Subquery in SELECT Clause:</h3>
+                <div class="code-block">
+-- Use subquery as a column
+SELECT (SELECT DEPTNO FROM DEPT WHERE DEPTNO = 10) "Department No.",
+       ENAME
+FROM EMP;
+                </div>
+
+                <h3>Oracle Quote Operator (q):</h3>
+                <div class="code-block">
+-- Traditional way (difficult with quotes)
+SELECT 'Oracle''s Quote Operator' FROM DUAL;
+
+-- Using q operator (easier)
+SELECT q'#Oracle's Quote Operator#' FROM DUAL;
+SELECT q'^Oracle's Quote Operator^' FROM DUAL;
+
+-- Practical example
+SELECT INITCAP(ENAME)||q'#'s#'||' Salary is: '||SAL
+FROM EMP;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Inline Views</h2>
+                
+                <p>When we use a SQL subquery in the FROM clause of a SELECT statement, it's called an <strong>Inline View</strong>.</p>
+
+                <p>Inline Views are used to:</p>
+                <ul>
+                    <li>Simplify complex queries</li>
+                    <li>Remove join operations</li>
+                    <li>Filter several separate queries into a single query</li>
+                </ul>
+
+                <div class="code-block">
+-- Simple inline view example
+SELECT *
+FROM emp e, (SELECT deptno FROM dept) d
+WHERE e.deptno = d.deptno;
+                </div>
+
+                <h3>Complex Inline View Example:</h3>
+                <div class="code-block">
+-- Count employees by department using inline view
+SELECT dept.dname, emp.emp_count "Count"
+FROM (SELECT deptno, COUNT(*) emp_count
+      FROM emp
+      GROUP BY deptno) emp, dept
+WHERE dept.deptno = emp.deptno;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Inline View Benefits:</strong>
+                    <ul>
+                        <li>Treats subquery result as a temporary table</li>
+                        <li>Can apply additional filtering and sorting</li>
+                        <li>Useful for complex aggregations</li>
+                        <li>Improves query readability</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. Subquery Best Practices</h2>
+                
+                <ul>
+                    <li><strong>Performance:</strong> Subqueries can be slower than joins for large datasets</li>
+                    <li><strong>NULL Handling:</strong> Always consider NULL values when using NOT IN</li>
+                    <li><strong>Single vs Multiple Rows:</strong> Use appropriate operators (=, IN, ANY, ALL)</li>
+                    <li><strong>Correlated Subqueries:</strong> Use when inner query depends on outer query</li>
+                    <li><strong>Inline Views:</strong> Use for complex aggregations and calculations</li>
+                </ul>
+
+                <div class="note-box">
+                    <strong>When to Use Subqueries:</strong>
+                    <ul>
+                        <li>When you need to filter based on aggregated data</li>
+                        <li>When the criteria depends on data from the same table</li>
+                        <li>For complex business logic that's hard to express with joins</li>
+                        <li>When you need to compare against calculated values</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter5.html">← Chapter 5: Multiple Tables</a>
+                <a href="chapter7.html">Next: Chapter 7 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

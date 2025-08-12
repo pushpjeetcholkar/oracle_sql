@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 5: Displaying Data from Multiple Tables</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 1 (Ch 1-8)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter1.html">Ch 1: SELECT Statement</a></li>
+                        <li><a href="chapter2.html">Ch 2: Restricting & Sorting</a></li>
+                        <li><a href="chapter3.html">Ch 3: Single Row Functions</a></li>
+                        <li><a href="chapter4.html">Ch 4: Group Functions</a></li>
+                        <li><a href="chapter5.html">Ch 5: Multiple Tables</a></li>
+                        <li><a href="chapter6.html">Ch 6: Subqueries</a></li>
+                        <li><a href="chapter7.html">Ch 7: Set Operators</a></li>
+                        <li><a href="chapter8.html">Ch 8: Manipulating Data</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 5: Displaying Data from Multiple Tables</h1>
+            <p>Master table joins and relationships in Oracle SQL</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Natural Join</h2>
+                
+                <p>Natural Join automatically joins tables based on columns with the same name, same values, and same data types.</p>
+
+                <div class="code-block">
+-- Basic Natural Join
+SELECT EMPNO, ENAME, DEPTNO, DNAME 
+FROM EMP
+NATURAL JOIN DEPT;
+                </div>
+
+                <h3>Natural Join with Multiple Tables:</h3>
+                <div class="code-block">
+-- Create test tables
+CREATE TABLE a(id NUMBER, name VARCHAR2(30));
+CREATE TABLE b(id NUMBER, place VARCHAR2(30));
+CREATE TABLE c(id NUMBER, city VARCHAR2(30));
+
+-- Insert test data
+INSERT INTO a VALUES(1,'K1');
+INSERT INTO b VALUES(1,'T.Nagar');
+INSERT INTO c VALUES(1,'Mumbai');
+
+-- Natural join with three tables
+SELECT id, name, place, city
+FROM a NATURAL JOIN b NATURAL JOIN c;
+                </div>
+
+                <h3>Natural Join with WHERE Clause:</h3>
+                <div class="code-block">
+-- Filter results after natural join
+SELECT EMPNO, ENAME, DEPTNO, DNAME 
+FROM EMP
+NATURAL JOIN DEPT
+WHERE DEPTNO = 10;
+                </div>
+
+                <div class="note-box">
+                    <strong>Natural Join Characteristics:</strong>
+                    <ul>
+                        <li>Automatically matches columns with identical names</li>
+                        <li>No need to specify join condition</li>
+                        <li>Can be unpredictable if table structures change</li>
+                        <li>Best used when you're certain about common column names</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. JOIN with USING Clause</h2>
+                
+                <p>The USING clause is used when several columns share the same name but you want to join using only specific common columns.</p>
+
+                <div class="code-block">
+-- Join using specific column
+SELECT E.EMPNO, E.ENAME, D.DNAME 
+FROM EMP E
+JOIN DEPT D USING (DEPTNO);
+                </div>
+
+                <div class="highlight-box">
+                    <strong>USING Clause Benefits:</strong>
+                    <ul>
+                        <li>More control than Natural Join</li>
+                        <li>Specify exactly which columns to join on</li>
+                        <li>Cleaner than ON clause for simple equality joins</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. JOIN with ON Clause</h2>
+                
+                <p>The ON clause is used when column names differ between tables or when you need more complex join conditions.</p>
+
+                <div class="code-block">
+-- Basic JOIN with ON clause
+SELECT EMP.EMPNO, EMP.ENAME, DEPT.DEPTNO, DEPT.DNAME
+FROM EMP JOIN DEPT
+ON EMP.DEPTNO = DEPT.DEPTNO;
+                </div>
+
+                <div class="note-box">
+                    <strong>Note:</strong> Table aliases can be up to 30 characters in length, but shorter aliases improve readability.
+                </div>
+
+                <h3>Using Table Aliases:</h3>
+                <div class="code-block">
+-- Same query with aliases for better readability
+SELECT E.EMPNO, E.ENAME, D.DEPTNO, D.DNAME
+FROM EMP E JOIN DEPT D
+ON E.DEPTNO = D.DEPTNO;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Self Joins</h2>
+                
+                <p>Self joins are used to join a table to itself, typically to show hierarchical relationships.</p>
+
+                <div class="code-block">
+-- Find employees and their managers
+SELECT 
+    E.EMPNO "Employee No.",
+    E.ENAME "Employee Name",
+    M.ENAME "Manager Name"
+FROM EMP E JOIN EMP M
+ON E.MGR = M.EMPNO;
+
+-- More descriptive output
+SELECT 
+    E.EMPNO "Employee No.",
+    E.ENAME || ' reports to ' || M.ENAME "Reporting Structure"
+FROM EMP E JOIN EMP M
+ON E.MGR = M.EMPNO;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Self Join Use Cases:</strong>
+                    <ul>
+                        <li>Employee-Manager relationships</li>
+                        <li>Parent-Child hierarchies</li>
+                        <li>Comparing rows within the same table</li>
+                        <li>Finding duplicates or related records</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Non-Equi Joins</h2>
+                
+                <p>Non-equi joins use operators other than equality (=) in the join condition.</p>
+
+                <div class="code-block">
+-- Join employees with salary grades using BETWEEN
+SELECT E.EMPNO, E.ENAME, E.SAL, S.GRADE
+FROM EMP E JOIN SALGRADE S
+ON E.SAL BETWEEN S.LOSAL AND S.HISAL;
+                </div>
+
+                <div class="note-box">
+                    <strong>Non-Equi Join Operators:</strong>
+                    <ul>
+                        <li><strong>BETWEEN...AND:</strong> Range comparisons</li>
+                        <li><strong>&gt;, &lt;, &gt;=, &lt;=:</strong> Inequality comparisons</li>
+                        <li><strong>!=, &lt;&gt;:</strong> Not equal comparisons</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Outer Joins</h2>
+                
+                <p>Outer joins return all rows from one or both tables, even when there are no matching rows in the other table.</p>
+
+                <h3>LEFT OUTER JOIN</h3>
+                <p>Returns all rows from the left table, and matching rows from the right table.</p>
+
+                <div class="code-block">
+-- All employees, with department info where available
+SELECT E.EMPNO, E.ENAME, D.DNAME, D.DEPTNO
+FROM emp E LEFT OUTER JOIN dept D
+ON E.deptno = D.deptno;
+
+-- Different table order shows different results
+SELECT E.EMPNO, E.ENAME, D.DNAME, D.DEPTNO
+FROM dept D LEFT OUTER JOIN emp E
+ON E.deptno = D.deptno;
+                </div>
+
+                <h3>RIGHT OUTER JOIN</h3>
+                <p>Returns all rows from the right table, and matching rows from the left table.</p>
+
+                <div class="code-block">
+-- All departments, with employee info where available
+SELECT E.EMPNO, E.ENAME, D.DNAME, D.DEPTNO
+FROM EMP E RIGHT OUTER JOIN DEPT D
+ON E.DEPTNO = D.DEPTNO;
+                </div>
+
+                <h3>FULL OUTER JOIN</h3>
+                <p>Returns all rows from both tables, showing unmatched rows from both sides.</p>
+
+                <div class="code-block">
+-- Create test tables for FULL OUTER JOIN example
+CREATE TABLE AA(ID NUMBER, NAME VARCHAR2(50));
+CREATE TABLE BB(ID NUMBER, PLACE VARCHAR2(50));
+
+-- Insert test data
+INSERT INTO AA VALUES(10,'H');
+INSERT INTO BB VALUES(10,'MKT');
+INSERT INTO AA VALUES(20,'G');
+INSERT INTO BB VALUES(20,'SALES');
+INSERT INTO AA VALUES(30,'D');      -- No match in BB
+INSERT INTO BB VALUES(50,'AC');     -- No match in AA
+
+-- View the data
+SELECT * FROM AA;
+SELECT * FROM BB;
+
+-- FULL OUTER JOIN shows all records from both tables
+SELECT A.ID, A.NAME, B.PLACE, B.ID
+FROM AA A FULL OUTER JOIN BB B
+ON A.ID = B.ID;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Outer Join Types:</strong>
+                    <ul>
+                        <li><strong>LEFT OUTER:</strong> All rows from left table + matches from right</li>
+                        <li><strong>RIGHT OUTER:</strong> All rows from right table + matches from left</li>
+                        <li><strong>FULL OUTER:</strong> All rows from both tables</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. Cartesian Product and Cross Joins</h2>
+                
+                <h3>Cartesian Product (Accidental)</h3>
+                <p>Occurs when you join tables without a proper join condition.</p>
+
+                <div class="code-block">
+-- This creates a Cartesian product (usually unintended)
+SELECT E.EMPNO, D.DNAME
+FROM EMP E, DEPT D;
+                </div>
+
+                <div class="warning-box">
+                    <strong>Warning:</strong> Cartesian products can generate huge result sets. An employee table with 14 rows and department table with 4 rows would produce 56 rows (14 × 4).
+                </div>
+
+                <h3>Cross Join (Intentional)</h3>
+                <p>Sometimes you intentionally want a Cartesian product for testing or specific business needs.</p>
+
+                <div class="code-block">
+-- Intentional cross join
+SELECT ENAME, DNAME
+FROM EMP
+CROSS JOIN DEPT;
+
+-- Cross join with multiple tables
+SELECT ENAME, DNAME
+FROM EMP
+CROSS JOIN DEPT 
+CROSS JOIN SALGRADE;
+                </div>
+
+                <div class="note-box">
+                    <strong>Cross Join Use Cases:</strong>
+                    <ul>
+                        <li>Generating test data</li>
+                        <li>Creating all possible combinations</li>
+                        <li>Mathematical calculations requiring all pairs</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>8. Traditional Oracle Join Syntax</h2>
+                
+                <p>Oracle also supports traditional comma-separated table syntax with WHERE clause conditions.</p>
+
+                <h3>Inner Join (Traditional Syntax):</h3>
+                <div class="code-block">
+-- Traditional inner join syntax
+SELECT EMP.EMPNO, EMP.ENAME, DEPT.DNAME, DEPT.DEPTNO
+FROM EMP, DEPT
+WHERE EMP.DEPTNO = DEPT.DEPTNO;
+
+-- With table aliases
+SELECT E.EMPNO, E.ENAME, D.DNAME, D.DEPTNO
+FROM EMP E, DEPT D
+WHERE E.DEPTNO = D.DEPTNO;
+                </div>
+
+                <h3>Outer Join (Traditional Syntax with (+)):</h3>
+                <div class="code-block">
+-- Left outer join using (+) operator
+SELECT E.EMPNO, E.ENAME, E.DEPTNO, D.DEPTNO, D.DNAME
+FROM EMP E, DEPT D
+WHERE E.DEPTNO(+) = D.DEPTNO;
+
+-- Right outer join using (+) operator
+SELECT E.EMPNO, E.ENAME, E.DEPTNO, D.DEPTNO, D.DNAME
+FROM EMP E, DEPT D
+WHERE E.DEPTNO = D.DEPTNO(+);
+                </div>
+
+                <div class="warning-box">
+                    <strong>Invalid Syntax:</strong>
+                    <div class="code-block">
+-- This will cause an error - can't use (+) on both sides
+SELECT E.EMPNO, E.ENAME, E.DEPTNO, D.DEPTNO, D.DNAME
+FROM EMP E, DEPT D
+WHERE E.DEPTNO(+) = D.DEPTNO(+);
+                    </div>
+                    <p>The (+) operator can only be used on one side of the join condition.</p>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>9. Join Best Practices</h2>
+                
+                <ul>
+                    <li><strong>Use ANSI syntax</strong> (JOIN...ON) for better readability and portability</li>
+                    <li><strong>Always use table aliases</strong> for multi-table queries</li>
+                    <li><strong>Be explicit about join types</strong> (INNER, LEFT OUTER, etc.)</li>
+                    <li><strong>Use appropriate indexes</strong> on join columns for performance</li>
+                    <li><strong>Filter early</strong> using WHERE conditions to reduce result sets</li>
+                    <li><strong>Avoid Cartesian products</strong> unless intentionally needed</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Performance Tips:</strong>
+                    <ul>
+                        <li>Join on indexed columns when possible</li>
+                        <li>Use the most selective conditions first</li>
+                        <li>Consider the order of tables in FROM clause</li>
+                        <li>Use EXISTS instead of IN for subqueries when appropriate</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>10. Common Join Patterns</h2>
+                
+                <h3>Employee-Department-Location:</h3>
+                <div class="code-block">
+-- Three-table join
+SELECT E.ENAME, D.DNAME, L.CITY
+FROM EMP E
+JOIN DEPT D ON E.DEPTNO = D.DEPTNO
+JOIN LOCATION L ON D.LOC = L.LOC;
+                </div>
+
+                <h3>Manager Hierarchy:</h3>
+                <div class="code-block">
+-- Show employee, manager, and manager's manager
+SELECT 
+    E.ENAME "Employee",
+    M.ENAME "Manager", 
+    GM.ENAME "Grand Manager"
+FROM EMP E
+LEFT JOIN EMP M ON E.MGR = M.EMPNO
+LEFT JOIN EMP GM ON M.MGR = GM.EMPNO;
+                </div>
+
+                <h3>Aggregation with Joins:</h3>
+                <div class="code-block">
+-- Department statistics
+SELECT 
+    D.DNAME,
+    COUNT(E.EMPNO) "Employee Count",
+    ROUND(AVG(E.SAL)) "Average Salary"
+FROM DEPT D
+LEFT JOIN EMP E ON D.DEPTNO = E.DEPTNO
+GROUP BY D.DNAME
+ORDER BY D.DNAME;
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter4.html">← Chapter 4: Group Functions</a>
+                <a href="chapter6.html">Next: Chapter 6 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>
