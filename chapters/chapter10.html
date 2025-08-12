@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10: Creating other Schema Objects</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 2 (Ch 9-11)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter9.html">Ch 9: DDL Statements</a></li>
+                        <li><a href="chapter10.html">Ch 10: Schema Objects</a></li>
+                        <li><a href="chapter11.html">Ch 11: Data Dictionary</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 10: Creating other Schema Objects</h1>
+            <p>Master Views, Sequences, Indexes, and Synonyms</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Database Objects Overview</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Object</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Table</td>
+                            <td>Basic unit of storage, composed of rows and columns</td>
+                        </tr>
+                        <tr>
+                            <td>View</td>
+                            <td>Logically represents subsets of data from one or more tables</td>
+                        </tr>
+                        <tr>
+                            <td>Sequence</td>
+                            <td>Generates unique numerical values automatically</td>
+                        </tr>
+                        <tr>
+                            <td>Index</td>
+                            <td>Improves performance of queries</td>
+                        </tr>
+                        <tr>
+                            <td>Synonym</td>
+                            <td>Provides alternate names for objects</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note-box">
+                    <strong>Schema Objects Benefits:</strong>
+                    <ul>
+                        <li><strong>Views:</strong> Present and hide data from tables</li>
+                        <li><strong>Sequences:</strong> Generate unique numbers for primary keys</li>
+                        <li><strong>Indexes:</strong> Improve query performance and enforce uniqueness</li>
+                        <li><strong>Synonyms:</strong> Provide alternate names for easier access</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. What is a View?</h2>
+                
+                <p>A view is a logical table based on a table or another view. A view contains no data of its own but is like a window through which data from tables can be viewed or changed.</p>
+
+                <ul>
+                    <li>The tables on which a view is based are called <strong>base tables</strong></li>
+                    <li>The view is stored as a SELECT statement in the database</li>
+                    <li>Views provide logical subsets or combinations of data</li>
+                </ul>
+
+                <h3>Advantages of Views:</h3>
+                <ol>
+                    <li><strong>Restrict Data Access:</strong> Views can display selected columns from tables</li>
+                    <li><strong>Make Complex Queries Easy:</strong> Hide complexity of joins and calculations</li>
+                    <li><strong>Provide Data Independence:</strong> One view can retrieve data from several tables</li>
+                    <li><strong>Present Different Views:</strong> Same data can be presented differently</li>
+                </ol>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Simple vs Complex Views</h2>
+                
+                <div class="highlight-box">
+                    <h3>Simple Views:</h3>
+                    <ul>
+                        <li>Derive data from only one table</li>
+                        <li>Contain no functions or groups of data</li>
+                        <li>Can perform DML operations through the view</li>
+                    </ul>
+
+                    <h3>Complex Views:</h3>
+                    <ul>
+                        <li>Derive data from many tables</li>
+                        <li>Contain functions or groups of data</li>
+                        <li>Do not always allow DML operations through the view</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Creating Views</h2>
+                
+                <h3>CREATE VIEW Syntax:</h3>
+                <div class="code-block">
+CREATE [OR REPLACE] [FORCE|NOFORCE] VIEW view_name
+[(alias[, alias]...)]
+AS subquery
+[WITH CHECK OPTION [CONSTRAINT constraint]]
+[WITH READ ONLY [CONSTRAINT constraint]];
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>OR REPLACE</td>
+                            <td>Re-creates the view if it already exists</td>
+                        </tr>
+                        <tr>
+                            <td>FORCE</td>
+                            <td>Creates view regardless of whether base tables exist</td>
+                        </tr>
+                        <tr>
+                            <td>NOFORCE</td>
+                            <td>Creates view only if base tables exist (default)</td>
+                        </tr>
+                        <tr>
+                            <td>WITH CHECK OPTION</td>
+                            <td>Only accessible rows can be inserted or updated</td>
+                        </tr>
+                        <tr>
+                            <td>WITH READ ONLY</td>
+                            <td>No DML operations can be performed</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Simple View Example:</h3>
+                <div class="code-block">
+-- Create view for department 20 employees
+CREATE VIEW empvu20 
+AS 
+SELECT empno, ename, sal, deptno
+FROM emp 
+WHERE deptno = 20;
+
+-- Describe the view structure
+DESCRIBE empvu20;
+
+-- Query the view
+SELECT * FROM empvu20;
+                </div>
+
+                <h3>View with Column Aliases:</h3>
+                <div class="code-block">
+-- Method 1: Aliases in SELECT clause
+CREATE VIEW salvu20
+AS SELECT empno ID_NUMBER, ename NAME, sal * 12 ANN_SALARY
+FROM emp
+WHERE deptno = 20;
+
+-- Method 2: Aliases in CREATE clause
+CREATE OR REPLACE VIEW salvu20(ID_NUMBER, NAME, ANN_SALARY)
+AS SELECT empno, ename, sal * 12
+FROM emp
+WHERE deptno = 30;
+
+-- Query the view
+SELECT ID_NUMBER, NAME, ANN_SALARY FROM salvu20;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Complex Views</h2>
+                
+                <div class="code-block">
+-- Create complex view with joins and group functions
+CREATE OR REPLACE VIEW dept_sum_vu
+(name, minsal, maxsal, avgsal)
+AS 
+SELECT d.dname, MIN(e.sal), MAX(e.sal), AVG(e.sal)
+FROM emp e JOIN dept d
+ON (e.deptno = d.deptno)
+GROUP BY d.dname;
+
+-- Query the complex view
+SELECT * FROM dept_sum_vu;
+                </div>
+
+                <div class="note-box">
+                    <strong>Complex View Characteristics:</strong>
+                    <ul>
+                        <li>Can join multiple tables</li>
+                        <li>Can include group functions and GROUP BY clauses</li>
+                        <li>Can include calculated columns</li>
+                        <li>Limited DML operations</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. DML Operations on Views</h2>
+                
+                <h3>Rules for DML Operations:</h3>
+                
+                <div class="warning-box">
+                    <strong>Cannot Remove Rows if view contains:</strong>
+                    <ul>
+                        <li>Group functions</li>
+                        <li>GROUP BY clause</li>
+                        <li>DISTINCT keyword</li>
+                        <li>ROWNUM pseudocolumn</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Cannot Modify Data if view contains:</strong>
+                    <ul>
+                        <li>Group functions</li>
+                        <li>GROUP BY clause</li>
+                        <li>DISTINCT keyword</li>
+                        <li>ROWNUM pseudocolumn</li>
+                        <li>Columns defined by expressions</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Cannot Add Data if view includes:</strong>
+                    <ul>
+                        <li>Group functions</li>
+                        <li>GROUP BY clause</li>
+                        <li>DISTINCT keyword</li>
+                        <li>ROWNUM pseudocolumn</li>
+                        <li>Columns defined by expressions</li>
+                        <li>NOT NULL columns in base tables not selected by view</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. WITH CHECK OPTION</h2>
+                
+                <div class="code-block">
+-- Create view with CHECK OPTION
+CREATE OR REPLACE VIEW empvu20
+AS 
+SELECT * 
+FROM emp
+WHERE deptno = 20
+WITH CHECK OPTION CONSTRAINT empvu20_chk;
+
+-- Check constraint information
+SELECT owner, constraint_name, constraint_type, table_name 
+FROM user_constraints 
+WHERE constraint_name = 'EMPVU20_CHK';
+
+-- This will fail - violates CHECK OPTION
+UPDATE empvu20 SET deptno = 30
+WHERE empno = 7369;
+                </div>
+
+                <div class="note-box">
+                    <strong>WITH CHECK OPTION:</strong>
+                    <ul>
+                        <li>Ensures DML operations stay within view's domain</li>
+                        <li>Applies to INSERT and UPDATE operations only</li>
+                        <li>Has no effect on DELETE operations</li>
+                        <li>Can be named with CONSTRAINT clause</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>8. WITH READ ONLY</h2>
+                
+                <div class="code-block">
+-- Create read-only view
+CREATE OR REPLACE VIEW empvu20
+AS
+SELECT * FROM emp
+WHERE deptno = 20
+WITH READ ONLY;
+
+-- These operations will fail
+INSERT INTO empvu20(empno) VALUES(100);
+DELETE FROM empvu20;
+UPDATE empvu20 SET sal = sal * 1.1;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>WITH READ ONLY:</strong> Prevents all DML operations on the view, making it completely read-only.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>9. Managing Views</h2>
+                
+                <h3>Dropping Views:</h3>
+                <div class="code-block">
+-- Drop a view
+DROP VIEW view_name;
+                </div>
+
+                <h3>FORCE Views:</h3>
+                <div class="code-block">
+-- Create view even if base table doesn't exist
+CREATE FORCE VIEW a_v AS SELECT * FROM a;
+
+-- Create the base table later
+CREATE TABLE a(id NUMBER);
+
+-- Now the view works
+SELECT * FROM a_v;
+
+-- Cleanup
+DROP VIEW a_v;
+DROP TABLE a PURGE;
+                </div>
+
+                <div class="note-box">
+                    <strong>View Management:</strong>
+                    <ul>
+                        <li>Dropping a view doesn't affect base tables</li>
+                        <li>Views based on deleted views become invalid</li>
+                        <li>FORCE views can be created before base tables exist</li>
+                        <li>Views are automatically recompiled when accessed</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>10. Sequences</h2>
+                
+                <p>A sequence is a database object that creates integer values automatically.</p>
+
+                <h3>Sequence Benefits:</h3>
+                <ul>
+                    <li>Automatically generate unique numbers</li>
+                    <li>Create primary key values</li>
+                    <li>Replace application code</li>
+                    <li>Speed up efficiency when cached in memory</li>
+                    <li>Can be used for multiple tables</li>
+                </ul>
+
+                <h3>CREATE SEQUENCE Syntax:</h3>
+                <div class="code-block">
+CREATE SEQUENCE sequence_name
+[INCREMENT BY n]
+[START WITH n]
+[{MAXVALUE n | NOMAXVALUE}]
+[{MINVALUE n | NOMINVALUE}]
+[{CYCLE | NOCYCLE}]
+[{CACHE n | NOCACHE}];
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>INCREMENT BY n</td>
+                            <td>Interval between sequence numbers (default: 1)</td>
+                        </tr>
+                        <tr>
+                            <td>START WITH n</td>
+                            <td>First sequence number to generate (default: 1)</td>
+                        </tr>
+                        <tr>
+                            <td>MAXVALUE n</td>
+                            <td>Maximum value the sequence can generate</td>
+                        </tr>
+                        <tr>
+                            <td>NOMAXVALUE</td>
+                            <td>Maximum value of 10^27</td>
+                        </tr>
+                        <tr>
+                            <td>MINVALUE n</td>
+                            <td>Minimum sequence value</td>
+                        </tr>
+                        <tr>
+                            <td>NOMINVALUE</td>
+                            <td>Minimum value of 1</td>
+                        </tr>
+                        <tr>
+                            <td>CYCLE</td>
+                            <td>Sequence continues after reaching limit</td>
+                        </tr>
+                        <tr>
+                            <td>NOCYCLE</td>
+                            <td>Sequence stops after reaching limit</td>
+                        </tr>
+                        <tr>
+                            <td>CACHE n</td>
+                            <td>Number of values to store in memory (default: 20)</td>
+                        </tr>
+                        <tr>
+                            <td>NOCACHE</td>
+                            <td>No values stored in memory</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="content-section">
+                <h2>11. Using Sequences</h2>
+                
+                <h3>Creating a Sequence:</h3>
+                <div class="code-block">
+-- Create sequence for employee numbers
+CREATE SEQUENCE emp_empno_seq
+INCREMENT BY 10
+START WITH 120
+MAXVALUE 99999
+CACHE 5;
+
+-- View sequence information
+SELECT * FROM user_sequences WHERE sequence_name = 'EMP_EMPNO_SEQ';
+                </div>
+
+                <h3>NEXTVAL and CURRVAL Pseudocolumns:</h3>
+                <div class="code-block">
+-- Insert using sequence
+INSERT INTO emp VALUES
+(emp_empno_seq.NEXTVAL, 'JOHN', 'MANAGER', 7839,
+ '01-JAN-2010', 10000, 10, 30);
+
+-- View current sequence value
+SELECT emp_empno_seq.CURRVAL FROM dual;
+
+-- Get next sequence value
+SELECT emp_empno_seq.NEXTVAL FROM dual;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>NEXTVAL and CURRVAL Rules:</strong>
+                    <ul>
+                        <li><strong>NEXTVAL:</strong> Returns next available sequence value</li>
+                        <li><strong>CURRVAL:</strong> Returns current sequence value</li>
+                        <li>NEXTVAL must be issued before CURRVAL contains a value</li>
+                        <li>Each NEXTVAL call returns a unique value</li>
+                    </ul>
+                </div>
+
+                <h3>Where You Can Use NEXTVAL and CURRVAL:</h3>
+                <ul>
+                    <li>SELECT list of a SELECT statement (not in subquery)</li>
+                    <li>SELECT list of subquery in INSERT statement</li>
+                    <li>VALUES clause of INSERT statement</li>
+                    <li>SET clause of UPDATE statement</li>
+                </ul>
+
+                <h3>Where You Cannot Use NEXTVAL and CURRVAL:</h3>
+                <ul>
+                    <li>SELECT list of a view</li>
+                    <li>SELECT statement with DISTINCT keyword</li>
+                    <li>SELECT statement with GROUP BY, HAVING, or ORDER BY</li>
+                    <li>Subquery in SELECT, DELETE, or UPDATE statement</li>
+                    <li>DEFAULT expression in CREATE TABLE or ALTER TABLE</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>12. Managing Sequences</h2>
+                
+                <h3>Modifying Sequences:</h3>
+                <div class="code-block">
+-- Alter sequence parameters
+ALTER SEQUENCE emp_empno_seq
+INCREMENT BY 20
+MAXVALUE 999999
+NOCACHE
+NOCYCLE;
+
+-- View updated sequence
+SELECT * FROM user_sequences WHERE sequence_name = 'EMP_EMPNO_SEQ';
+                </div>
+
+                <div class="warning-box">
+                    <strong>ALTER SEQUENCE Limitations:</strong>
+                    <ul>
+                        <li>Cannot change START WITH value</li>
+                        <li>MAXVALUE cannot be less than current value</li>
+                        <li>Must drop and recreate to change START WITH</li>
+                    </ul>
+                </div>
+
+                <h3>Dropping Sequences:</h3>
+                <div class="code-block">
+-- Drop sequence
+DROP SEQUENCE emp_empno_seq;
+                </div>
+
+                <h3>Sequence Caching:</h3>
+                <div class="note-box">
+                    <strong>Caching Benefits and Risks:</strong>
+                    <ul>
+                        <li><strong>Benefits:</strong> Faster access to sequence values</li>
+                        <li><strong>Risks:</strong> System failure can cause gaps in sequence values</li>
+                        <li><strong>Default:</strong> Oracle caches 20 values by default</li>
+                        <li><strong>Gaps occur when:</strong> Rollback, system crash, sequence used in another table</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>13. Indexes</h2>
+                
+                <p>Indexes are database objects that improve query performance by providing rapid path access to data.</p>
+
+                <h3>Index Characteristics:</h3>
+                <ul>
+                    <li>Schema object independent of the table it indexes</li>
+                    <li>Used and maintained automatically by Oracle server</li>
+                    <li>Can reduce disk I/O by using pointers</li>
+                    <li>Dropped automatically when table is dropped</li>
+                </ul>
+
+                <h3>Types of Indexes:</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Creation</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Unique Index</td>
+                            <td>Automatic</td>
+                            <td>Created for PRIMARY KEY or UNIQUE constraints</td>
+                        </tr>
+                        <tr>
+                            <td>Non-unique Index</td>
+                            <td>Manual</td>
+                            <td>Created by users to improve query performance</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Creating Indexes:</h3>
+                <div class="code-block">
+-- Create simple index
+CREATE INDEX emp_ename_idx ON emp(ename);
+
+-- View index information
+SELECT index_name FROM user_indexes WHERE table_name = 'EMP';
+
+-- Create unique index
+CREATE TABLE test_tab(
+    id NUMBER PRIMARY KEY,
+    name VARCHAR2(150),
+    place VARCHAR2(150)
+);
+
+CREATE UNIQUE INDEX test_tab_idx ON test_tab(name, place);
+
+-- Create function-based index
+CREATE INDEX test_tab_idx_func ON test_tab(UPPER(name));
+
+-- View detailed index information
+SELECT index_name, table_name, index_type, uniqueness 
+FROM user_indexes
+WHERE table_name = 'TEST_TAB';
+                </div>
+
+                <h3>Function-Based Index Usage:</h3>
+                <div class="code-block">
+-- This query can use the function-based index
+SELECT id, UPPER(name)
+FROM test_tab
+WHERE UPPER(name) IS NOT NULL
+ORDER BY UPPER(name);
+                </div>
+
+                <h3>Managing Indexes:</h3>
+                <div class="code-block">
+-- View index columns
+SELECT * FROM user_ind_columns WHERE table_name = 'TEST_TAB';
+
+-- Rename index
+ALTER INDEX old_name RENAME TO new_name;
+
+-- Drop index
+DROP INDEX emp_ename_idx;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>14. Synonyms</h2>
+                
+                <p>Synonyms simplify access to objects by creating alternate names.</p>
+
+                <h3>Synonym Benefits:</h3>
+                <ul>
+                    <li>Create easier reference to tables owned by other users</li>
+                    <li>Shorten lengthy object names</li>
+                    <li>Provide location transparency</li>
+                    <li>Simplify SQL statements</li>
+                </ul>
+
+                <h3>CREATE SYNONYM Syntax:</h3>
+                <div class="code-block">
+CREATE [PUBLIC] SYNONYM synonym_name
+FOR object_name;
+                </div>
+
+                <h3>Creating Synonyms:</h3>
+                <div class="code-block">
+-- Create private synonym
+CREATE SYNONYM locations FOR hr.locations;
+
+-- Use the synonym
+SELECT * FROM locations;
+
+-- Drop private synonym
+DROP SYNONYM locations;
+
+-- Create public synonym (requires DBA privileges)
+CREATE PUBLIC SYNONYM locations FOR hr.locations;
+
+-- Drop public synonym
+DROP PUBLIC SYNONYM locations;
+                </div>
+
+                <div class="note-box">
+                    <strong>Synonym Types:</strong>
+                    <ul>
+                        <li><strong>Private Synonym:</strong> Accessible only to the creator</li>
+                        <li><strong>Public Synonym:</strong> Accessible to all users</li>
+                        <li><strong>Guidelines:</strong> Private synonym names must be distinct from other objects owned by the same user</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>15. Best Practices</h2>
+                
+                <ul>
+                    <li><strong>Views:</strong> Use for security, simplification, and data independence</li>
+                    <li><strong>Sequences:</strong> Use NOCYCLE for primary keys to avoid duplicates</li>
+                    <li><strong>Indexes:</strong> Create on frequently queried columns and foreign keys</li>
+                    <li><strong>Synonyms:</strong> Use to simplify access to objects in other schemas</li>
+                    <li><strong>Naming:</strong> Use consistent naming conventions for all objects</li>
+                    <li><strong>Documentation:</strong> Document the purpose and usage of each object</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Performance Tips:</strong>
+                    <ul>
+                        <li>Cache sequences for better performance</li>
+                        <li>Create indexes on columns used in WHERE clauses</li>
+                        <li>Use views to encapsulate complex business logic</li>
+                        <li>Consider function-based indexes for calculated columns</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter9.html">← Chapter 9: DDL Statements</a>
+                <a href="chapter11.html">Next: Chapter 11 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>
