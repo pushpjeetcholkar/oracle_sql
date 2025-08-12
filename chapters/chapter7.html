@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 7: Using the Set Operators</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 1 (Ch 1-8)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter1.html">Ch 1: SELECT Statement</a></li>
+                        <li><a href="chapter2.html">Ch 2: Restricting & Sorting</a></li>
+                        <li><a href="chapter3.html">Ch 3: Single Row Functions</a></li>
+                        <li><a href="chapter4.html">Ch 4: Group Functions</a></li>
+                        <li><a href="chapter5.html">Ch 5: Multiple Tables</a></li>
+                        <li><a href="chapter6.html">Ch 6: Subqueries</a></li>
+                        <li><a href="chapter7.html">Ch 7: Set Operators</a></li>
+                        <li><a href="chapter8.html">Ch 8: Manipulating Data</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 7: Using the Set Operators</h1>
+            <p>Combine results from multiple queries with UNION, INTERSECT, and MINUS</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Set Operators Overview</h2>
+                
+                <p>Set operators combine the results of two or more SELECT statements. Oracle provides four set operators:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operator</th>
+                            <th>Description</th>
+                            <th>Duplicates</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>UNION</td>
+                            <td>Returns all rows from both queries</td>
+                            <td>Eliminated</td>
+                        </tr>
+                        <tr>
+                            <td>UNION ALL</td>
+                            <td>Returns all rows from both queries</td>
+                            <td>Included</td>
+                        </tr>
+                        <tr>
+                            <td>INTERSECT</td>
+                            <td>Returns rows common to both queries</td>
+                            <td>Eliminated</td>
+                        </tr>
+                        <tr>
+                            <td>MINUS</td>
+                            <td>Returns rows in first query but not in second</td>
+                            <td>Eliminated</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note-box">
+                    <strong>Set Operator Requirements:</strong>
+                    <ul>
+                        <li>Number of columns must be identical in all SELECT statements</li>
+                        <li>Data types of corresponding columns must be compatible</li>
+                        <li>Column names need not be identical</li>
+                        <li>NULL values are not ignored during duplicate checking</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. UNION Operator</h2>
+                
+                <p>The UNION operator returns all rows selected by either query and eliminates duplicate rows.</p>
+
+                <h3>Setup Example Tables:</h3>
+                <div class="code-block">
+-- Create sample tables for demonstration
+CREATE TABLE sales_2005(person_name VARCHAR2(40), amount NUMBER);
+CREATE TABLE sales_2006(person_name VARCHAR2(40), amount NUMBER);
+
+-- Insert sample data for 2005
+INSERT INTO sales_2005 VALUES('Joe', 1000);
+INSERT INTO sales_2005 VALUES('Alex', 2000);
+INSERT INTO sales_2005 VALUES('Bob', 5000);
+INSERT INTO sales_2005 VALUES('Joe', 2000);
+
+-- Insert sample data for 2006
+INSERT INTO sales_2006 VALUES('Alex', 2000);
+INSERT INTO sales_2006 VALUES('Zach', 35000);
+
+-- View the data
+SELECT * FROM sales_2005;
+SELECT * FROM sales_2006;
+                </div>
+
+                <h3>Basic UNION Example:</h3>
+                <div class="code-block">
+-- Combine sales from both years (eliminates duplicates)
+SELECT person_name, amount
+FROM sales_2005
+UNION
+SELECT person_name, amount
+FROM sales_2006;
+                </div>
+
+                <h3>UNION with Column Aliases:</h3>
+                <div class="code-block">
+-- Column names from first query appear in result
+SELECT person_name person, amount
+FROM sales_2005
+UNION
+SELECT person_name, amount
+FROM sales_2006;
+                </div>
+
+                <h3>UNION with ORDER BY:</h3>
+                <div class="code-block">
+-- ORDER BY must come at the end of entire statement
+SELECT person_name, amount
+FROM sales_2005
+UNION
+SELECT person_name, amount
+FROM sales_2006
+ORDER BY amount DESC;
+                </div>
+
+                <div class="warning-box">
+                    <strong>Invalid Syntax:</strong>
+                    <div class="code-block">
+-- This will cause an error
+SELECT person_name, amount
+FROM sales_2005
+ORDER BY amount DESC
+UNION
+SELECT person_name, amount
+FROM sales_2006;
+                    </div>
+                    <p>ORDER BY can only appear at the end of the complete statement.</p>
+                </div>
+
+                <div class="highlight-box">
+                    <strong>UNION Characteristics:</strong>
+                    <ul>
+                        <li>Eliminates duplicate rows automatically</li>
+                        <li>Results are sorted in ascending order by default</li>
+                        <li>NULL values are considered in duplicate elimination</li>
+                        <li>Column names from first query are used in result</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. UNION ALL Operator</h2>
+                
+                <p>The UNION ALL operator returns all rows from both queries, including duplicates.</p>
+
+                <div class="code-block">
+-- Include all rows, even duplicates
+SELECT PERSON_NAME, AMOUNT
+FROM SALES_2005
+UNION ALL
+SELECT PERSON_NAME, AMOUNT
+FROM SALES_2006;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>UNION vs UNION ALL:</strong>
+                    <ul>
+                        <li><strong>UNION:</strong> Eliminates duplicates, slower performance</li>
+                        <li><strong>UNION ALL:</strong> Includes duplicates, faster performance</li>
+                        <li><strong>Use UNION ALL</strong> when you know there are no duplicates or when duplicates are acceptable</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. INTERSECT Operator</h2>
+                
+                <p>The INTERSECT operator returns only rows that are common to both queries.</p>
+
+                <div class="code-block">
+-- Find people who had sales in both years
+SELECT PERSON_NAME, AMOUNT
+FROM SALES_2005
+INTERSECT
+SELECT PERSON_NAME, AMOUNT
+FROM SALES_2006;
+                </div>
+
+                <h3>INTERSECT with Different Tables:</h3>
+                <div class="code-block">
+-- Find departments that have employees
+SELECT DEPTNO
+FROM EMP
+INTERSECT
+SELECT DEPTNO
+FROM DEPT;
+                </div>
+
+                <div class="note-box">
+                    <strong>INTERSECT Use Cases:</strong>
+                    <ul>
+                        <li>Finding common records between tables</li>
+                        <li>Data validation and consistency checks</li>
+                        <li>Identifying overlapping data sets</li>
+                        <li>Quality assurance queries</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. MINUS Operator</h2>
+                
+                <p>The MINUS operator returns rows from the first query that are not present in the second query.</p>
+
+                <div class="code-block">
+-- Find sales in 2005 that don't appear in 2006
+SELECT PERSON_NAME, AMOUNT
+FROM SALES_2005
+MINUS
+SELECT PERSON_NAME, AMOUNT
+FROM SALES_2006;
+
+-- Find sales in 2006 that don't appear in 2005
+SELECT PERSON_NAME, AMOUNT
+FROM SALES_2006
+MINUS
+SELECT PERSON_NAME, AMOUNT
+FROM SALES_2005;
+                </div>
+
+                <h3>MINUS with Different Tables:</h3>
+                <div class="code-block">
+-- Find departments that have no employees
+SELECT DEPTNO
+FROM DEPT
+MINUS
+SELECT DEPTNO
+FROM EMP;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>MINUS Characteristics:</strong>
+                    <ul>
+                        <li>Order matters: A MINUS B ≠ B MINUS A</li>
+                        <li>Returns unique rows from first query only</li>
+                        <li>Useful for finding missing or orphaned records</li>
+                        <li>Alternative to NOT EXISTS subqueries</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Set Operator Guidelines</h2>
+                
+                <ol>
+                    <li><strong>Column Matching:</strong> Expressions in SELECT lists must match in number and data type</li>
+                    <li><strong>Parentheses:</strong> Can be used to alter sequence of execution</li>
+                    <li><strong>ORDER BY:</strong> Can appear only at the end of the statement</li>
+                    <li><strong>Duplicates:</strong> Automatically eliminated except in UNION ALL</li>
+                    <li><strong>Column Names:</strong> From the first query appear in the result</li>
+                    <li><strong>Sorting:</strong> Output is sorted in ascending order by default (except UNION ALL)</li>
+                </ol>
+            </section>
+
+            <section class="content-section">
+                <h2>7. Matching SELECT Statements</h2>
+                
+                <p>When columns don't match exactly, you can use NULL or literal values to make them compatible.</p>
+
+                <h3>Using NULL for Missing Columns:</h3>
+                <div class="code-block">
+-- Match different column structures
+SELECT PERSON_NAME, NULL as amount
+FROM SALES_2005
+UNION 
+SELECT NULL as person_name, AMOUNT
+FROM SALES_2006;
+                </div>
+
+                <h3>Using Literals for Compatibility:</h3>
+                <div class="code-block">
+-- Use 0 instead of NULL for numeric compatibility
+SELECT PERSON_NAME, 0 as amount
+FROM SALES_2005
+UNION
+SELECT NULL as person_name, AMOUNT
+FROM SALES_2006;
+                </div>
+
+                <h3>Creative Use - Building Sentences:</h3>
+                <div class="code-block">
+-- Create an English sentence using UNION
+SELECT 'I''d like to teach' AS "My Dream", 1 "Order"
+FROM DUAL
+UNION
+SELECT 'the World to', 2 "Order"
+FROM DUAL
+UNION
+SELECT 'sing', 3 "Order"
+FROM DUAL
+ORDER BY 2;
+                </div>
+
+                <div class="note-box">
+                    <strong>Column Matching Tips:</strong>
+                    <ul>
+                        <li>Use NULL when you need a placeholder column</li>
+                        <li>Use appropriate data type literals (0 for numbers, '' for strings)</li>
+                        <li>Consider using CAST() to ensure data type compatibility</li>
+                        <li>Column names from the first query determine result column names</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>8. Complex Set Operations</h2>
+                
+                <h3>Using Parentheses to Control Precedence:</h3>
+                <div class="code-block">
+-- Without parentheses (left to right evaluation)
+SELECT person_name FROM sales_2005
+UNION
+SELECT person_name FROM sales_2006
+INTERSECT
+SELECT person_name FROM sales_2005;
+
+-- With parentheses to control order
+(SELECT person_name FROM sales_2005
+ UNION
+ SELECT person_name FROM sales_2006)
+INTERSECT
+SELECT person_name FROM sales_2005;
+                </div>
+
+                <h3>Multiple Set Operations:</h3>
+                <div class="code-block">
+-- Combine multiple operations
+SELECT deptno FROM emp WHERE job = 'MANAGER'
+UNION
+SELECT deptno FROM emp WHERE job = 'CLERK'
+MINUS
+SELECT deptno FROM emp WHERE sal > 3000;
+                </div>
+
+                <h3>Set Operations with Aggregates:</h3>
+                <div class="code-block">
+-- Combine aggregated results
+SELECT 'Total 2005' as period, SUM(amount) as total
+FROM sales_2005
+UNION ALL
+SELECT 'Total 2006' as period, SUM(amount) as total
+FROM sales_2006
+UNION ALL
+SELECT 'Grand Total' as period, 
+       (SELECT SUM(amount) FROM sales_2005) + 
+       (SELECT SUM(amount) FROM sales_2006) as total
+FROM dual;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>9. Performance Considerations</h2>
+                
+                <ul>
+                    <li><strong>UNION ALL</strong> is faster than UNION (no duplicate elimination)</li>
+                    <li><strong>INTERSECT and MINUS</strong> can be expensive on large datasets</li>
+                    <li><strong>Consider indexes</strong> on columns used in set operations</li>
+                    <li><strong>Use EXISTS/NOT EXISTS</strong> instead of INTERSECT/MINUS for better performance in some cases</li>
+                    <li><strong>Filter early</strong> using WHERE clauses before set operations</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Alternative Approaches:</strong>
+                    <div class="code-block">
+-- Instead of INTERSECT, consider EXISTS
+SELECT DISTINCT e1.deptno
+FROM emp e1
+WHERE EXISTS (SELECT 1 FROM dept d WHERE d.deptno = e1.deptno);
+
+-- Instead of MINUS, consider NOT EXISTS
+SELECT d.deptno
+FROM dept d
+WHERE NOT EXISTS (SELECT 1 FROM emp e WHERE e.deptno = d.deptno);
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>10. Practical Examples</h2>
+                
+                <h3>Data Comparison:</h3>
+                <div class="code-block">
+-- Find employees in departments 10 or 20, but not both
+(SELECT empno, ename FROM emp WHERE deptno = 10
+ UNION
+ SELECT empno, ename FROM emp WHERE deptno = 20)
+MINUS
+(SELECT empno, ename FROM emp WHERE deptno = 10
+ INTERSECT
+ SELECT empno, ename FROM emp WHERE deptno = 20);
+                </div>
+
+                <h3>Report Generation:</h3>
+                <div class="code-block">
+-- Create a summary report
+SELECT 'Managers' as category, COUNT(*) as count
+FROM emp WHERE job = 'MANAGER'
+UNION ALL
+SELECT 'Clerks' as category, COUNT(*) as count
+FROM emp WHERE job = 'CLERK'
+UNION ALL
+SELECT 'Salesmen' as category, COUNT(*) as count
+FROM emp WHERE job = 'SALESMAN'
+UNION ALL
+SELECT 'Total Employees' as category, COUNT(*) as count
+FROM emp
+ORDER BY 
+  CASE category 
+    WHEN 'Total Employees' THEN 4
+    ELSE 1
+  END, category;
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter6.html">← Chapter 6: Subqueries</a>
+                <a href="chapter8.html">Next: Chapter 8 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

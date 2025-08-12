@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 8: Manipulating Data</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 1 (Ch 1-8)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter1.html">Ch 1: SELECT Statement</a></li>
+                        <li><a href="chapter2.html">Ch 2: Restricting & Sorting</a></li>
+                        <li><a href="chapter3.html">Ch 3: Single Row Functions</a></li>
+                        <li><a href="chapter4.html">Ch 4: Group Functions</a></li>
+                        <li><a href="chapter5.html">Ch 5: Multiple Tables</a></li>
+                        <li><a href="chapter6.html">Ch 6: Subqueries</a></li>
+                        <li><a href="chapter7.html">Ch 7: Set Operators</a></li>
+                        <li><a href="chapter8.html">Ch 8: Manipulating Data</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 8: Manipulating Data</h1>
+            <p>Learn INSERT, UPDATE, DELETE, MERGE, and transaction control</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Data Manipulation Language (DML) Overview</h2>
+                
+                <p>DML statements are executed when you:</p>
+                <ul>
+                    <li>Add new rows to a table (INSERT)</li>
+                    <li>Modify existing rows in a table (UPDATE)</li>
+                    <li>Remove existing rows from a table (DELETE)</li>
+                </ul>
+
+                <div class="note-box">
+                    <strong>Transaction Concept:</strong> A transaction consists of a collection of DML statements that form a logical unit of work.
+                </div>
+
+                <h3>SET FEEDBACK Command:</h3>
+                <div class="code-block">
+-- Control display of row count feedback
+SET FEEDBACK OFF;        -- Suppress feedback
+SET FEEDBACK ON;         -- Show feedback
+SET FEEDBACK 10;         -- Show feedback only for 10+ rows (minimum 6)
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. INSERT Statement</h2>
+                
+                <h3>Setup Test Table:</h3>
+                <div class="code-block">
+-- Create empty table with same structure as EMP
+CREATE TABLE EMP_MASTER AS SELECT * FROM EMP WHERE 1=2;
+                </div>
+
+                <h3>Insert Values for All Columns:</h3>
+                <div class="code-block">
+-- Insert complete row
+INSERT INTO EMP_MASTER VALUES
+(100,'K1','CONC',102,'01-JAN-2012',12000,0,10);
+                </div>
+
+                <h3>Insert Values for Specific Columns:</h3>
+                <div class="code-block">
+-- Insert only specified columns
+INSERT INTO EMP_MASTER(EMPNO,ENAME) VALUES(102,'K2');
+                </div>
+
+                <h3>Inserting NULL Values:</h3>
+                <div class="code-block">
+-- Implicit method (omit columns)
+INSERT INTO EMP_MASTER(EMPNO,ENAME,SAL) VALUES(103,'K3',15000);
+
+-- Explicit method using NULL keyword
+INSERT INTO EMP_MASTER(EMPNO,HIREDATE,SAL) VALUES(104,'01-JAN-2012',NULL);
+
+-- Explicit method using empty string for dates
+INSERT INTO EMP_MASTER(EMPNO,HIREDATE,SAL) VALUES(105,'',NULL);
+                </div>
+
+                <div class="warning-box">
+                    <strong>Important:</strong> Spaces are not allowed for inserting NULL values explicitly, regardless of datatype.
+                    <div class="code-block">
+-- These will cause errors:
+INSERT INTO EMP_MASTER(EMPNO,HIREDATE,SAL) VALUES(106,' ',NULL);
+INSERT INTO EMP_MASTER(EMPNO,HIREDATE,SAL) VALUES(' ','01-JAN-2010',NULL);
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Inserting Special Values</h2>
+                
+                <h3>System Date and Time:</h3>
+                <div class="code-block">
+-- Insert current system date
+INSERT INTO EMP_MASTER(EMPNO,ENAME,HIREDATE) VALUES(105,'K4',SYSDATE);
+                </div>
+
+                <h3>Current User:</h3>
+                <div class="code-block">
+-- Insert current Oracle user name
+INSERT INTO EMP_MASTER(EMPNO,ENAME,HIREDATE) VALUES(106,USER,NULL);
+                </div>
+
+                <h3>Specific Date Values:</h3>
+                <div class="code-block">
+-- Insert formatted date
+INSERT INTO EMP_MASTER(EMPNO,ENAME,HIREDATE)
+VALUES(110,'KL2',TO_DATE('MAY 2012 12','MON YYYY DD'));
+                </div>
+
+                <h3>Using Substitution Variables:</h3>
+                <div class="code-block">
+-- Create reusable script with parameters
+INSERT INTO EMP_MASTER(EMPNO,ENAME,HIREDATE)
+VALUES(&empno,'&ename','&hiredate');
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Copying Rows from Another Table</h2>
+                
+                <div class="code-block">
+-- Insert selected columns from another table
+INSERT INTO EMP_MASTER(EMPNO,ENAME,HIREDATE,SAL,COMM)
+SELECT EMPNO,ENAME,HIREDATE,SAL,COMM
+FROM EMP 
+WHERE DEPTNO = 10;
+
+-- Insert all matching columns
+INSERT INTO EMP_MASTER(EMPNO,ENAME,JOB,HIREDATE,SAL,COMM,DEPTNO)
+SELECT EMPNO,ENAME,JOB,HIREDATE,SAL,COMM,DEPTNO
+FROM EMP 
+WHERE DEPTNO = 20;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>INSERT...SELECT Benefits:</strong>
+                    <ul>
+                        <li>Copy multiple rows in single statement</li>
+                        <li>Apply filters and transformations during copy</li>
+                        <li>Efficient for bulk data operations</li>
+                        <li>Can use joins and subqueries in SELECT</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. UPDATE Statement</h2>
+                
+                <h3>Update All Rows (No WHERE Clause):</h3>
+                <div class="code-block">
+-- Update all rows in table
+UPDATE EMP_MASTER
+SET JOB='SALES';
+                </div>
+
+                <div class="warning-box">
+                    <strong>Caution:</strong> UPDATE without WHERE clause affects all rows in the table!
+                </div>
+
+                <h3>Update Specific Rows:</h3>
+                <div class="code-block">
+-- Update specific employee
+UPDATE EMP_MASTER
+SET JOB='ADMIN'
+WHERE EMPNO = 100;
+                </div>
+
+                <h3>Update Multiple Columns:</h3>
+                <div class="code-block">
+-- Update multiple columns at once
+UPDATE EMP_MASTER
+SET JOB='MANAGER', SAL=5000, COMM=500
+WHERE EMPNO = 100;
+                </div>
+
+                <h3>Update with Subquery:</h3>
+                <div class="code-block">
+-- Update using values from another table
+UPDATE EMP_MASTER
+SET JOB = (SELECT JOB FROM EMP WHERE EMPNO = 7369),
+    SAL = (SELECT SAL FROM EMP WHERE EMPNO = 7369)
+WHERE EMPNO = 7782;
+                </div>
+
+                <h3>Update with Calculations:</h3>
+                <div class="code-block">
+-- Update with calculated values
+UPDATE EMP_MASTER
+SET SAL = SAL * 1.10,           -- 10% salary increase
+    COMM = NVL(COMM,0) + 100    -- Add 100 to commission
+WHERE DEPTNO = 10;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. DELETE Statement</h2>
+                
+                <h3>Delete Specific Rows:</h3>
+                <div class="code-block">
+-- Delete employees from specific department
+DELETE FROM EMP_MASTER WHERE DEPTNO = 10;
+                </div>
+
+                <h3>Delete All Rows:</h3>
+                <div class="code-block">
+-- Delete all records (structure remains)
+DELETE FROM EMP_MASTER;
+                </div>
+
+                <h3>Delete with Subquery:</h3>
+                <div class="code-block">
+-- First, repopulate table for example
+INSERT INTO EMP_MASTER(EMPNO,ENAME,HIREDATE,SAL,COMM)
+SELECT EMPNO,ENAME,HIREDATE,SAL,COMM FROM EMP;
+
+-- Delete based on condition from another table
+DELETE FROM EMP_MASTER
+WHERE SAL <= (SELECT SAL FROM EMP WHERE EMPNO = 7654);
+
+-- Equivalent to:
+DELETE FROM EMP_MASTER WHERE SAL <= 1250;
+                </div>
+
+                <div class="note-box">
+                    <strong>DELETE vs TRUNCATE:</strong>
+                    <ul>
+                        <li><strong>DELETE:</strong> DML, can be rolled back, can use WHERE clause</li>
+                        <li><strong>TRUNCATE:</strong> DDL, cannot be rolled back, removes all rows</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. MERGE Statement</h2>
+                
+                <p>The MERGE statement allows you to select rows from one or more sources for update or insertion into a table or view.</p>
+
+                <h3>Basic MERGE Example:</h3>
+                <div class="code-block">
+-- Create test table
+CREATE TABLE EMP13 AS SELECT EMPNO,ENAME FROM EMP WHERE 1 = 2;
+
+-- Insert one test record
+INSERT INTO EMP13(EMPNO,ENAME) VALUES(7369,'Rahul');
+
+-- MERGE operation
+MERGE INTO EMP13 C
+USING EMP E
+ON (C.EMPNO = E.EMPNO)
+WHEN MATCHED THEN
+    UPDATE SET C.ENAME = E.ENAME
+WHEN NOT MATCHED THEN
+    INSERT VALUES(E.EMPNO,E.ENAME);
+
+-- View results
+SELECT * FROM EMP13;
+                </div>
+
+                <h3>MERGE with Multiple Columns:</h3>
+                <div class="code-block">
+-- Create full structure table
+CREATE TABLE EMP13 AS SELECT * FROM EMP WHERE 1 = 2;
+
+-- Insert test record
+INSERT INTO EMP13(EMPNO,ENAME) VALUES(7369,'Rahul');
+
+-- MERGE with specific columns
+MERGE INTO EMP13 C
+USING EMP E
+ON (C.EMPNO = E.EMPNO)
+WHEN MATCHED THEN
+    UPDATE SET C.ENAME = E.ENAME
+WHEN NOT MATCHED THEN
+    INSERT(EMPNO,ENAME) VALUES(E.EMPNO,E.ENAME);
+                </div>
+
+                <div class="highlight-box">
+                    <strong>MERGE Benefits:</strong>
+                    <ul>
+                        <li>Combines INSERT and UPDATE in single statement</li>
+                        <li>Efficient for synchronizing tables</li>
+                        <li>Reduces multiple round trips to database</li>
+                        <li>Useful for data warehousing operations</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>8. TRUNCATE Statement</h2>
+                
+                <div class="code-block">
+-- Remove all rows, keep table structure
+TRUNCATE TABLE EMP_MASTER;
+                </div>
+
+                <div class="warning-box">
+                    <strong>Important TRUNCATE Characteristics:</strong>
+                    <ul>
+                        <li>DDL statement (not DML)</li>
+                        <li>Cannot be rolled back</li>
+                        <li>Faster than DELETE for removing all rows</li>
+                        <li>Resets high water mark</li>
+                        <li>Cannot use WHERE clause</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>9. Subquery in INSERT Statement</h2>
+                
+                <p>You can use a subquery as the target for INSERT operations.</p>
+
+                <div class="code-block">
+-- Insert into specific columns using subquery target
+INSERT INTO
+(SELECT EMPNO,ENAME,JOB FROM EMP_MASTER)
+VALUES(100,'K1','CONC');
+
+-- Verify the insert
+SELECT * FROM EMP_MASTER;
+                </div>
+
+                <div class="note-box">
+                    <strong>Subquery INSERT Benefits:</strong>
+                    <ul>
+                        <li>Insert into specific columns only</li>
+                        <li>Helps with mandatory column requirements</li>
+                        <li>Can use complex subqueries as targets</li>
+                        <li>Useful for inserting into views</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>10. Database Transactions</h2>
+                
+                <p>A database transaction consists of one of the following:</p>
+                <ul>
+                    <li>DML statements that constitute one consistent change to data</li>
+                    <li>One DDL statement</li>
+                    <li>One Transaction Control Language (TCL) statement</li>
+                </ul>
+
+                <h3>Transaction Types:</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Auto-Commit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>DML</td>
+                            <td>Any number of DML statements</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td>DDL</td>
+                            <td>Only one DDL statement</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>DCL</td>
+                            <td>Only one DCL statement</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>TCL</td>
+                            <td>COMMIT, ROLLBACK, or SAVEPOINT</td>
+                            <td>N/A</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Transaction Control:</h3>
+                <div class="code-block">
+-- Transaction control commands
+COMMIT;                           -- Make changes permanent
+ROLLBACK;                         -- Undo all changes
+SAVEPOINT savepoint_name;         -- Create rollback point
+ROLLBACK TO SAVEPOINT savepoint_name;  -- Rollback to specific point
+                </div>
+
+                <h3>Transaction Boundaries:</h3>
+                <p>Transactions begin when the first DML SQL statement is executed and end with:</p>
+                <ul>
+                    <li>A COMMIT or ROLLBACK statement</li>
+                    <li>A DDL or DCL statement (automatic commit)</li>
+                    <li>User exits SQL*Plus</li>
+                    <li>System failure (automatic rollback)</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>11. Using SAVEPOINT</h2>
+                
+                <div class="code-block">
+-- Example of savepoint usage
+INSERT INTO EMP_MASTER(EMPNO,ENAME) VALUES(101,'K2');
+
+-- Create savepoint
+SAVEPOINT K1;
+
+-- View current data
+SELECT * FROM EMP_MASTER;
+
+-- Make more changes
+UPDATE EMP_MASTER SET EMPNO = 200;
+INSERT INTO EMP_MASTER(EMPNO,ENAME) VALUES(400,'K3');
+
+-- View changed data
+SELECT * FROM EMP_MASTER;
+
+-- Rollback to savepoint (undoes UPDATE and second INSERT)
+ROLLBACK TO SAVEPOINT K1;
+
+-- View data after rollback
+SELECT * FROM EMP_MASTER;
+                </div>
+
+                <div class="note-box">
+                    <strong>SAVEPOINT Rules:</strong>
+                    <ul>
+                        <li>COMMIT erases all savepoints</li>
+                        <li>Multiple savepoints with same name: latest one is used</li>
+                        <li>ROLLBACK TO SAVEPOINT only undoes changes after that point</li>
+                        <li>Savepoints are lost when transaction ends</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>12. Best Practices</h2>
+                
+                <ul>
+                    <li><strong>Always use WHERE clause</strong> with UPDATE and DELETE (unless you really want to affect all rows)</li>
+                    <li><strong>Test with SELECT first</strong> - use SELECT with same WHERE clause to verify which rows will be affected</li>
+                    <li><strong>Use transactions wisely</strong> - group related DML operations</li>
+                    <li><strong>Create savepoints</strong> for complex multi-step operations</li>
+                    <li><strong>Use MERGE</strong> for synchronization operations</li>
+                    <li><strong>Consider performance</strong> - batch operations when possible</li>
+                    <li><strong>Handle errors</strong> - always have rollback strategy</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Safety Tips:</strong>
+                    <ul>
+                        <li>Always backup important data before bulk operations</li>
+                        <li>Use BEGIN/COMMIT blocks for related operations</li>
+                        <li>Test DML statements on small datasets first</li>
+                        <li>Use COUNT(*) to verify expected number of affected rows</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter7.html">← Chapter 7: Set Operators</a>
+                <a href="chapter9.html">Next: Chapter 9 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

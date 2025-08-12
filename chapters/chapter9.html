@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 9: Using DDL Statements to Create and Manage Tables</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 2 (Ch 9-11)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter9.html">Ch 9: DDL Statements</a></li>
+                        <li><a href="chapter10.html">Ch 10: Schema Objects</a></li>
+                        <li><a href="chapter11.html">Ch 11: Data Dictionary</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 9: Using DDL Statements to Create and Manage Tables</h1>
+            <p>Master Data Definition Language and database object creation</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Database Objects Overview</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Object</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Table</td>
+                            <td>Basic unit of storage, composed of rows and columns</td>
+                        </tr>
+                        <tr>
+                            <td>View</td>
+                            <td>Logically represents subsets of data from one or more tables</td>
+                        </tr>
+                        <tr>
+                            <td>Sequence</td>
+                            <td>Generates numerical values automatically</td>
+                        </tr>
+                        <tr>
+                            <td>Index</td>
+                            <td>Improves performance of queries</td>
+                        </tr>
+                        <tr>
+                            <td>Synonym</td>
+                            <td>Gives alternate names to objects</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Oracle Table Characteristics:</h3>
+                <ul>
+                    <li>Tables can be created at any time, even while users are using the database</li>
+                    <li>You don't need to specify table size - it's defined by allocated database space</li>
+                    <li>Table structure can be modified at any time</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Naming Rules</h2>
+                
+                <p>Table names and column names must follow these rules:</p>
+                <ol>
+                    <li>Must begin with a letter</li>
+                    <li>Must be 1-30 characters long</li>
+                    <li>Must contain only A-Z, a-z, 0-9, _, $, and #</li>
+                    <li>Must not duplicate the name of another object owned by the same user</li>
+                    <li>Must not be an Oracle Server reserved word</li>
+                </ol>
+
+                <h3>Accessing Other Users' Tables:</h3>
+                <div class="code-block">
+-- Access table from another schema
+SELECT * FROM sys.dual;
+SELECT * FROM hr.employees;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. CREATE TABLE Statement</h2>
+                
+                <p>To create a table, you must have:</p>
+                <ul>
+                    <li>The CREATE TABLE privilege</li>
+                    <li>A storage area</li>
+                </ul>
+
+                <p>You must specify:</p>
+                <ul>
+                    <li>Table name</li>
+                    <li>Column name</li>
+                    <li>Column data type</li>
+                    <li>Column size</li>
+                </ul>
+
+                <h3>Basic CREATE TABLE Syntax:</h3>
+                <div class="code-block">
+CREATE TABLE table_name (
+    column1 datatype [DEFAULT value] [constraint],
+    column2 datatype [DEFAULT value] [constraint],
+    ...
+    [table_constraints]
+);
+                </div>
+
+                <h3>DEFAULT Option:</h3>
+                <div class="code-block">
+-- Create table with DEFAULT values
+CREATE TABLE tab_hiredate (
+    id NUMBER,
+    hiredate DATE DEFAULT SYSDATE
+);
+
+-- Insert without specifying hiredate (uses default)
+INSERT INTO tab_hiredate(id) VALUES (10);
+
+-- View the result
+SELECT * FROM tab_hiredate;
+                </div>
+
+                <div class="note-box">
+                    <strong>DEFAULT Rules:</strong>
+                    <ul>
+                        <li>Literal values, expressions, or SQL functions are legal</li>
+                        <li>Column names or pseudocolumns are illegal</li>
+                        <li>Default data type must match column's data type</li>
+                    </ul>
+                </div>
+
+                <h3>Confirming Table Creation:</h3>
+                <div class="code-block">
+-- Display table structure
+DESCRIBE tab_hiredate;
+DESC tab_hiredate;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Important:</strong> Oracle Server performs an automatic COMMIT when DDL statements like CREATE TABLE are executed.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Oracle Data Types</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data Type</th>
+                            <th>Description</th>
+                            <th>Size/Range</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CHAR</td>
+                            <td>Fixed-length character data</td>
+                            <td>1-2000 bytes</td>
+                        </tr>
+                        <tr>
+                            <td>VARCHAR2</td>
+                            <td>Variable-length character data</td>
+                            <td>1-4000 bytes</td>
+                        </tr>
+                        <tr>
+                            <td>NUMBER</td>
+                            <td>Variable-length numeric data</td>
+                            <td>-32567 to 32567</td>
+                        </tr>
+                        <tr>
+                            <td>NUMBER(p,s)</td>
+                            <td>Numeric with precision and scale</td>
+                            <td>p: 1-38, s: -84 to 127</td>
+                        </tr>
+                        <tr>
+                            <td>DATE</td>
+                            <td>Date and time values</td>
+                            <td>Jan 1, 4712 BC to Dec 31, 9999 AD</td>
+                        </tr>
+                        <tr>
+                            <td>LONG</td>
+                            <td>Variable-length character data</td>
+                            <td>Up to 2GB</td>
+                        </tr>
+                        <tr>
+                            <td>CLOB</td>
+                            <td>Character large object</td>
+                            <td>Up to 4GB</td>
+                        </tr>
+                        <tr>
+                            <td>BLOB</td>
+                            <td>Binary large object</td>
+                            <td>Up to 4GB</td>
+                        </tr>
+                        <tr>
+                            <td>RAW</td>
+                            <td>Raw binary data</td>
+                            <td>1-2000 bytes</td>
+                        </tr>
+                        <tr>
+                            <td>LONG RAW</td>
+                            <td>Raw binary data</td>
+                            <td>Up to 2GB</td>
+                        </tr>
+                        <tr>
+                            <td>BFILE</td>
+                            <td>Binary data in external file</td>
+                            <td>Up to 4GB</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>NUMBER Data Type Examples:</h3>
+                <div class="code-block">
+-- NUMBER with precision 1
+CREATE TABLE a(ID NUMBER(1));
+INSERT INTO a VALUES(1);    -- Success
+INSERT INTO a VALUES(11);   -- Error: exceeds precision
+
+-- NUMBER with precision and scale
+CREATE TABLE b(id NUMBER(2,1));
+INSERT INTO b VALUES(1.1);  -- Success
+INSERT INTO b VALUES(11.1); -- Error: exceeds precision
+
+-- NUMBER with scale larger than precision
+CREATE TABLE c(id NUMBER(2,2));
+INSERT INTO c VALUES(0.12); -- Success
+INSERT INTO c VALUES(1.12); -- Error: exceeds precision
+                </div>
+
+                <h3>RAW Data Type:</h3>
+                <div class="code-block">
+-- Create table with RAW column
+CREATE TABLE t_raw (
+    id NUMBER,
+    hex_code RAW(16)
+);
+
+-- Insert using SYS_GUID() function
+INSERT INTO t_raw VALUES(1, SYS_GUID());
+INSERT INTO t_raw VALUES(2, SYS_GUID());
+
+-- View hexadecimal values
+SELECT * FROM t_raw;
+                </div>
+
+                <div class="note-box">
+                    <strong>RAW Data Type:</strong>
+                    <ul>
+                        <li>Used to store binary data or byte-oriented data</li>
+                        <li>Can only be queried or inserted, not manipulated</li>
+                        <li>Always returned as hexadecimal character value</li>
+                        <li>Maximum size: 2000 bytes in SQL, 32767 in PL/SQL</li>
+                    </ul>
+                </div>
+
+                <h3>LONG Column Restrictions:</h3>
+                <ul>
+                    <li>Not copied when table is created using subquery</li>
+                    <li>Cannot be included in GROUP BY or ORDER BY clause</li>
+                    <li>Only one LONG column per table</li>
+                    <li>No constraints can be defined on LONG column</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Constraints Overview</h2>
+                
+                <p>Constraints enforce rules at the table level and prevent invalid data entry.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Constraint</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>NOT NULL</td>
+                            <td>Column cannot contain NULL values</td>
+                        </tr>
+                        <tr>
+                            <td>UNIQUE</td>
+                            <td>Column values must be unique</td>
+                        </tr>
+                        <tr>
+                            <td>PRIMARY KEY</td>
+                            <td>Uniquely identifies each row</td>
+                        </tr>
+                        <tr>
+                            <td>FOREIGN KEY</td>
+                            <td>Establishes referential integrity</td>
+                        </tr>
+                        <tr>
+                            <td>CHECK</td>
+                            <td>Specifies condition that must be true</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Constraint Guidelines:</h3>
+                <ul>
+                    <li>You can name constraints or let Oracle generate names (SYS_Cn format)</li>
+                    <li>Constraints can be created during table creation or added later</li>
+                    <li>Define at column level or table level</li>
+                    <li>NOT NULL constraints must be defined at column level</li>
+                    <li>Multi-column constraints must be defined at table level</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Column-Level Constraints</h2>
+                
+                <div class="code-block">
+-- Named constraint
+CREATE TABLE tab_conc (
+    id NUMBER CONSTRAINT CONC_ID_PK PRIMARY KEY,
+    first_name VARCHAR2(40)
+);
+
+-- System-generated constraint name
+CREATE TABLE tab_conc2 (
+    id NUMBER PRIMARY KEY,
+    first_name VARCHAR2(40)
+);
+
+-- Query constraint information
+SELECT 
+    constraint_name "Constraint Name",
+    constraint_type,
+    table_name "Table Name"
+FROM user_constraints 
+WHERE table_name = 'TAB_CONC';
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. Table-Level Constraints</h2>
+                
+                <div class="code-block">
+-- Table-level constraint
+CREATE TABLE tab_conc (
+    id NUMBER,
+    first_name VARCHAR2(40),
+    CONSTRAINT tab_conc_id_pk PRIMARY KEY(id)
+);
+
+-- Query with DECODE for readable output
+SELECT 
+    constraint_name "Constraint Name",
+    DECODE(constraint_type,
+           'P','Primary Key',
+           'U','Unique Constraint',
+           'C','Check/Not Null',
+           'R','Foreign Key',
+           constraint_type) "Constraint Type",
+    table_name "Table Name"
+FROM user_constraints 
+WHERE table_name = 'TAB_CONC';
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>8. NOT NULL Constraint</h2>
+                
+                <div class="code-block">
+-- NOT NULL constraint (column level only)
+CREATE TABLE tab_conc (
+    id NUMBER,
+    first_name VARCHAR2(40) NOT NULL
+);
+
+-- Named NOT NULL constraint
+CREATE TABLE tab_conc2 (
+    id NUMBER,
+    first_name VARCHAR2(40) CONSTRAINT tab_conc_fn_nn NOT NULL
+);
+
+-- Test NOT NULL constraint
+INSERT INTO tab_conc2(id) VALUES(1);  -- Error: first_name cannot be NULL
+INSERT INTO tab_conc2 VALUES(1, 'John');  -- Success
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>9. UNIQUE Constraint</h2>
+                
+                <div class="code-block">
+-- UNIQUE constraint
+CREATE TABLE tab_conc (
+    id NUMBER,
+    first_name VARCHAR2(40),
+    last_name VARCHAR2(40),
+    email VARCHAR2(150) UNIQUE
+);
+
+-- Test UNIQUE constraint
+INSERT INTO tab_conc(first_name,email) VALUES('K1','k1@gmail.com');
+INSERT INTO tab_conc(first_name,email) VALUES('K2','k1@gmail.com');  -- Error: duplicate
+
+-- NULL values are allowed in UNIQUE columns
+INSERT INTO tab_conc(first_name) VALUES('K3');  -- Success
+INSERT INTO tab_conc(first_name) VALUES('K4');  -- Success (multiple NULLs allowed)
+                </div>
+
+                <div class="note-box">
+                    <strong>UNIQUE Constraint Rules:</strong>
+                    <ul>
+                        <li>No duplicate values allowed</li>
+                        <li>Multiple NULL values are permitted</li>
+                        <li>Can be defined at column or table level</li>
+                        <li>Automatically creates unique index</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>10. PRIMARY KEY Constraint</h2>
+                
+                <div class="code-block">
+-- PRIMARY KEY constraint
+CREATE TABLE employees (
+    employee_id NUMBER PRIMARY KEY,
+    first_name VARCHAR2(50),
+    last_name VARCHAR2(50),
+    email VARCHAR2(100)
+);
+
+-- Composite PRIMARY KEY (table level)
+CREATE TABLE order_items (
+    order_id NUMBER,
+    product_id NUMBER,
+    quantity NUMBER,
+    CONSTRAINT order_items_pk PRIMARY KEY(order_id, product_id)
+);
+                </div>
+
+                <div class="highlight-box">
+                    <strong>PRIMARY KEY Rules:</strong>
+                    <ul>
+                        <li>Only one primary key per table</li>
+                        <li>Cannot contain NULL values</li>
+                        <li>Values must be unique</li>
+                        <li>Maximum 32 columns in composite primary key</li>
+                        <li>Automatically creates unique index</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>11. FOREIGN KEY Constraint</h2>
+                
+                <div class="code-block">
+-- Parent table
+CREATE TABLE test_departments (
+    department_id NUMBER PRIMARY KEY,
+    department_name VARCHAR2(40)
+);
+
+-- Child table with foreign key
+CREATE TABLE test_employees (
+    employee_id NUMBER PRIMARY KEY,
+    first_name VARCHAR2(50),
+    department_id NUMBER REFERENCES test_departments(department_id)
+);
+
+-- Test foreign key constraint
+INSERT INTO test_departments VALUES(1,'Marketing');
+INSERT INTO test_employees VALUES(100,'John',1);    -- Success
+INSERT INTO test_employees VALUES(101,'Jane',2);    -- Error: department 2 doesn't exist
+                </div>
+
+                <h3>Foreign Key Options:</h3>
+                <div class="code-block">
+-- ON DELETE CASCADE
+CREATE TABLE tab_emp (
+    empno NUMBER PRIMARY KEY,
+    ename VARCHAR2(40),
+    deptno NUMBER REFERENCES tab_dept(deptno) ON DELETE CASCADE
+);
+
+-- ON DELETE SET NULL
+CREATE TABLE tab_emp2 (
+    empno NUMBER PRIMARY KEY,
+    ename VARCHAR2(40),
+    deptno NUMBER REFERENCES tab_dept(deptno) ON DELETE SET NULL
+);
+                </div>
+
+                <div class="note-box">
+                    <strong>Foreign Key Keywords:</strong>
+                    <ul>
+                        <li><strong>FOREIGN KEY:</strong> Defines column in child table (table level)</li>
+                        <li><strong>REFERENCES:</strong> Identifies parent table and column</li>
+                        <li><strong>ON DELETE CASCADE:</strong> Deletes child rows when parent is deleted</li>
+                        <li><strong>ON DELETE SET NULL:</strong> Sets foreign key to NULL when parent is deleted</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>12. CHECK Constraint</h2>
+                
+                <div class="code-block">
+-- Simple CHECK constraint
+CREATE TABLE tab_check (
+    id NUMBER,
+    sal NUMBER CONSTRAINT emp_sal_chk CHECK(sal > 0)
+);
+
+-- Test CHECK constraint
+INSERT INTO tab_check VALUES(100, 0);     -- Error: violates check constraint
+INSERT INTO tab_check VALUES(100, 1000);  -- Success
+
+-- Multiple conditions in CHECK
+CREATE TABLE employees_check (
+    id NUMBER,
+    name VARCHAR2(30),
+    sal NUMBER,
+    CONSTRAINT emp_chk CHECK(name IS NOT NULL AND sal > 0)
+);
+
+-- Complex CHECK constraint
+CREATE TABLE users (
+    email VARCHAR2(50) CHECK (email LIKE '%@%' AND UPPER(email) LIKE '%.COM%')
+);
+                </div>
+
+                <div class="highlight-box">
+                    <strong>CHECK Constraint Rules:</strong>
+                    <ul>
+                        <li>Defines condition that each row must satisfy</li>
+                        <li>No limit to number of CHECK constraints per column</li>
+                        <li>Cannot reference other rows or tables</li>
+                        <li>Cannot use SYSDATE, USER, or other functions</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>13. Creating Tables with Subqueries</h2>
+                
+                <div class="code-block">
+-- Create table and copy data
+CREATE TABLE emp_dept AS 
+SELECT empno, ename, sal * 12 annual_sal, deptno
+FROM emp 
+WHERE deptno = 10;
+
+-- Create table structure only (no data)
+CREATE TABLE emp_copy AS 
+SELECT * FROM emp WHERE 1=2;
+
+-- Include ROWID as a column
+CREATE TABLE rowid_tab AS 
+SELECT ROWID row_id, ename
+FROM emp;
+
+-- View the structure
+DESC rowid_tab;
+SELECT * FROM rowid_tab;
+                </div>
+
+                <div class="note-box">
+                    <strong>Subquery CREATE TABLE Rules:</strong>
+                    <ul>
+                        <li>Column count must match subquery columns</li>
+                        <li>Data types are inherited from source</li>
+                        <li>NOT NULL constraints are copied</li>
+                        <li>Other constraints are not copied</li>
+                        <li>LONG columns are not copied</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>14. DROP TABLE Statement</h2>
+                
+                <div class="code-block">
+-- Drop table completely
+DROP TABLE table_name;
+
+-- Drop table and purge from recycle bin
+DROP TABLE table_name PURGE;
+                </div>
+
+                <div class="warning-box">
+                    <strong>DROP TABLE Effects:</strong>
+                    <ul>
+                        <li>All data and structure are deleted</li>
+                        <li>Any pending transactions are committed</li>
+                        <li>All indexes are dropped</li>
+                        <li>All constraints are dropped</li>
+                        <li>Cannot be rolled back</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter8.html">← Chapter 8: Manipulating Data</a>
+                <a href="chapter10.html">Next: Chapter 10 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>
