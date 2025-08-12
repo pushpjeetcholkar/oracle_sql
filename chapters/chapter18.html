@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 18: Regular Expression Support</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 3 (Ch 12-18)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter12.html">Ch 12: User Access</a></li>
+                        <li><a href="chapter13.html">Ch 13: Managing Objects</a></li>
+                        <li><a href="chapter14.html">Ch 14: Grouping Data</a></li>
+                        <li><a href="chapter15.html">Ch 15: Timezones</a></li>
+                        <li><a href="chapter16.html">Ch 16: Advanced Subqueries</a></li>
+                        <li><a href="chapter17.html">Ch 17: Hierarchical Retrieval</a></li>
+                        <li><a href="chapter18.html">Ch 18: Regular Expressions</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 18: Regular Expression Support</h1>
+            <p>Pattern matching with REGEXP functions</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Regular Expression Functions</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>REGEXP_LIKE</td>
+                            <td>Pattern matching (similar to LIKE)</td>
+                        </tr>
+                        <tr>
+                            <td>REGEXP_SUBSTR</td>
+                            <td>Extract substring matching pattern</td>
+                        </tr>
+                        <tr>
+                            <td>REGEXP_REPLACE</td>
+                            <td>Replace text matching pattern</td>
+                        </tr>
+                        <tr>
+                            <td>REGEXP_INSTR</td>
+                            <td>Find position of pattern match</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="content-section">
+                <h2>2. REGEXP_LIKE Examples</h2>
+                
+                <div class="code-block">
+-- Find names starting with vowels
+SELECT ename FROM emp
+WHERE REGEXP_LIKE(ename, '^[AEIOU]');
+
+-- Find phone numbers (pattern: ###-###-####)
+SELECT * FROM customers
+WHERE REGEXP_LIKE(phone, '^\d{3}-\d{3}-\d{4}$');
+
+-- Case insensitive search
+SELECT ename FROM emp
+WHERE REGEXP_LIKE(ename, 'smith', 'i');
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. REGEXP_SUBSTR Examples</h2>
+                
+                <div class="code-block">
+-- Extract email domain
+SELECT 
+    email,
+    REGEXP_SUBSTR(email, '@(.+)', 1, 1, NULL, 1) as domain
+FROM users;
+
+-- Extract first word
+SELECT 
+    full_name,
+    REGEXP_SUBSTR(full_name, '\w+') as first_name
+FROM employees;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Common Patterns</h2>
+                
+                <div class="code-block">
+-- Email validation
+WHERE REGEXP_LIKE(email, '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+
+-- Phone number formats
+WHERE REGEXP_LIKE(phone, '^\(\d{3}\) \d{3}-\d{4}$')  -- (123) 456-7890
+WHERE REGEXP_LIKE(phone, '^\d{3}-\d{3}-\d{4}$')      -- 123-456-7890
+
+-- Postal codes
+WHERE REGEXP_LIKE(zip, '^\d{5}(-\d{4})?$')           -- 12345 or 12345-6789
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter17.html">← Chapter 17: Hierarchical Retrieval</a>
+                <a href="../index.html">Complete! Return Home →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 PITC USA. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

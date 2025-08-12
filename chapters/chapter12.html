@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 12: Controlling User Access</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 3 (Ch 12-18)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter12.html">Ch 12: User Access</a></li>
+                        <li><a href="chapter13.html">Ch 13: Managing Objects</a></li>
+                        <li><a href="chapter14.html">Ch 14: Grouping Data</a></li>
+                        <li><a href="chapter15.html">Ch 15: Timezones</a></li>
+                        <li><a href="chapter16.html">Ch 16: Advanced Subqueries</a></li>
+                        <li><a href="chapter17.html">Ch 17: Hierarchical Retrieval</a></li>
+                        <li><a href="chapter18.html">Ch 18: Regular Expressions</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 12: Controlling User Access</h1>
+            <p>Database security, users, privileges, and roles</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Database Security Overview</h2>
+                
+                <p>Oracle Database security is classified into two categories:</p>
+                <ul>
+                    <li><strong>System Security:</strong> Controls access at system level (username/password)</li>
+                    <li><strong>Data Security:</strong> Controls access to database objects and user actions</li>
+                </ul>
+
+                <h3>Security Capabilities:</h3>
+                <ul>
+                    <li>Control database access</li>
+                    <li>Give access to specific objects</li>
+                    <li>Confirm privileges with Data Dictionary</li>
+                    <li>Create synonyms for database objects</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Privileges</h2>
+                
+                <p>Privileges are rights to execute particular SQL statements.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Privilege Type</th>
+                            <th>Description</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>System Privileges</td>
+                            <td>Rights to perform system-level operations</td>
+                            <td>CREATE USER, CREATE TABLE, DROP ANY TABLE</td>
+                        </tr>
+                        <tr>
+                            <td>Object Privileges</td>
+                            <td>Rights to perform actions on specific objects</td>
+                            <td>SELECT, INSERT, UPDATE, DELETE</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note-box">
+                    <strong>Key Concepts:</strong>
+                    <ul>
+                        <li><strong>DBA:</strong> High-level user who can create users and grant privileges</li>
+                        <li><strong>Schema:</strong> Collection of objects owned by a database user</li>
+                        <li><strong>Role:</strong> Named group of related privileges</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Creating Users</h2>
+                
+                <div class="code-block">
+-- Create a new user
+CREATE USER hrms
+IDENTIFIED BY hrms;
+
+-- Create user with more options
+CREATE USER sales_user
+IDENTIFIED BY password123
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp;
+                </div>
+
+                <div class="warning-box">
+                    <strong>Note:</strong> Only DBAs can create users. After creation, users need privileges to access the database.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. System Privileges</h2>
+                
+                <h3>Common System Privileges:</h3>
+                <ul>
+                    <li><strong>CREATE SESSION:</strong> Connect to database</li>
+                    <li><strong>CREATE TABLE:</strong> Create tables in own schema</li>
+                    <li><strong>CREATE VIEW:</strong> Create views</li>
+                    <li><strong>CREATE SEQUENCE:</strong> Create sequences</li>
+                    <li><strong>CREATE PROCEDURE:</strong> Create stored procedures</li>
+                </ul>
+
+                <div class="code-block">
+-- Grant basic privileges to user
+GRANT CREATE SESSION TO hrms;
+GRANT CREATE TABLE TO hrms;
+GRANT CREATE SEQUENCE TO hrms;
+GRANT CREATE VIEW TO hrms;
+
+-- Grant multiple privileges at once
+GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE VIEW 
+TO hrms;
+
+-- Grant unlimited tablespace
+GRANT UNLIMITED TABLESPACE TO hrms;
+                </div>
+
+                <h3>WITH ADMIN OPTION:</h3>
+                <div class="code-block">
+-- Grant privilege with admin option
+GRANT CREATE SESSION TO user1 WITH ADMIN OPTION;
+
+-- Now user1 can grant CREATE SESSION to other users
+CONNECT user1/user1;
+GRANT CREATE SESSION TO user2;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Roles</h2>
+                
+                <p>A role is a named group of related privileges that simplifies privilege management.</p>
+
+                <div class="code-block">
+-- Create a role
+CREATE ROLE developer_role;
+
+-- Grant privileges to the role
+GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE VIEW, CREATE PROCEDURE 
+TO developer_role;
+
+-- Grant role to users
+GRANT developer_role TO user1, user2;
+
+-- View role privileges
+SELECT role, privilege FROM role_sys_privs 
+WHERE role = 'DEVELOPER_ROLE';
+                </div>
+
+                <h3>Role Benefits:</h3>
+                <ul>
+                    <li>Easier privilege management</li>
+                    <li>Consistent privilege assignment</li>
+                    <li>Simplified security administration</li>
+                    <li>Can be granted to multiple users</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Object Privileges</h2>
+                
+                <p>Object privileges control access to specific database objects.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Privilege</th>
+                            <th>Table</th>
+                            <th>View</th>
+                            <th>Sequence</th>
+                            <th>Procedure</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SELECT</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>INSERT</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>UPDATE</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>DELETE</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>EXECUTE</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>✓</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+-- Grant object privileges
+GRANT SELECT ON user1.test_table TO user2;
+
+-- Grant with grant option
+GRANT SELECT ON user1.test_table TO user2 WITH GRANT OPTION;
+
+-- Grant to multiple users
+GRANT SELECT ON scott.emp TO hr, hrms;
+
+-- Grant to all users
+GRANT SELECT ON hrms.employees TO PUBLIC;
+
+-- Grant on specific columns
+GRANT UPDATE(dname, loc) ON scott.dept TO hr;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>7. WITH GRANT OPTION</h2>
+                
+                <div class="code-block">
+-- User1 grants SELECT with grant option to User2
+GRANT SELECT ON user1.test_table TO user2 WITH GRANT OPTION;
+
+-- User2 can now grant to User3
+CONNECT user2/user2;
+GRANT SELECT ON user1.test_table TO user3;
+
+-- If User1 revokes from User2, User3 also loses access
+CONNECT user1/user1;
+REVOKE SELECT ON user1.test_table FROM user2;
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Important:</strong> When you revoke a privilege from a user who granted it to others, all dependent grants are also revoked (cascading revoke).
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>8. Data Dictionary Views</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>View</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>USER_SYS_PRIVS</td>
+                            <td>System privileges granted to user</td>
+                        </tr>
+                        <tr>
+                            <td>USER_ROLE_PRIVS</td>
+                            <td>Roles accessible by user</td>
+                        </tr>
+                        <tr>
+                            <td>USER_TAB_PRIVS_MADE</td>
+                            <td>Object privileges granted on user's objects</td>
+                        </tr>
+                        <tr>
+                            <td>USER_TAB_PRIVS_RECD</td>
+                            <td>Object privileges granted to user</td>
+                        </tr>
+                        <tr>
+                            <td>ROLE_SYS_PRIVS</td>
+                            <td>System privileges granted to roles</td>
+                        </tr>
+                        <tr>
+                            <td>ROLE_TAB_PRIVS</td>
+                            <td>Table privileges granted to roles</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+-- Check user's system privileges
+SELECT username, privilege, admin_option FROM user_sys_privs;
+
+-- Check user's roles
+SELECT username, granted_role, default_role FROM user_role_privs;
+
+-- Check object privileges granted by user
+SELECT grantee, table_name, privilege FROM user_tab_privs_made;
+
+-- Check object privileges received by user
+SELECT owner, table_name, privilege FROM user_tab_privs_recd;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>9. Changing Passwords</h2>
+                
+                <div class="code-block">
+-- DBA changes user password
+ALTER USER hrms IDENTIFIED BY new_password;
+
+-- User changes own password using SQL*Plus
+PASSWORD;
+
+-- User changes own password using SQL
+ALTER USER hrms IDENTIFIED BY new_password;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>10. Revoking Privileges</h2>
+                
+                <div class="code-block">
+-- Revoke system privileges
+REVOKE CREATE TABLE FROM hrms;
+
+-- Revoke object privileges
+REVOKE SELECT, INSERT ON scott.emp FROM hr;
+
+-- Revoke role
+REVOKE developer_role FROM user1, user2;
+
+-- Revoke with cascade constraints
+REVOKE ALL ON scott.emp FROM hr CASCADE CONSTRAINTS;
+                </div>
+
+                <div class="warning-box">
+                    <strong>Important Notes:</strong>
+                    <ul>
+                        <li>Revoking privileges granted WITH GRANT OPTION also revokes dependent grants</li>
+                        <li>If you drop a user without revoking privileges, system privileges granted by that user remain</li>
+                        <li>Object privileges are automatically revoked when the object is dropped</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>11. Best Practices</h2>
+                
+                <ul>
+                    <li><strong>Principle of Least Privilege:</strong> Grant only necessary privileges</li>
+                    <li><strong>Use Roles:</strong> Group related privileges for easier management</li>
+                    <li><strong>Regular Audits:</strong> Review and audit user privileges regularly</li>
+                    <li><strong>Strong Passwords:</strong> Enforce password policies</li>
+                    <li><strong>Document Access:</strong> Maintain records of who has what access</li>
+                    <li><strong>Revoke Unused Privileges:</strong> Remove privileges when no longer needed</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Security Tips:</strong>
+                    <ul>
+                        <li>Never grant DBA privileges unnecessarily</li>
+                        <li>Use PUBLIC grants sparingly</li>
+                        <li>Monitor privilege usage through audit trails</li>
+                        <li>Implement password expiration policies</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter11.html">← Chapter 11: Data Dictionary</a>
+                <a href="chapter13.html">Next: Chapter 13 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 PITC USA. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

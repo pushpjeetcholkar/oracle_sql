@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 17: Hierarchical Retrieval</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 3 (Ch 12-18)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter12.html">Ch 12: User Access</a></li>
+                        <li><a href="chapter13.html">Ch 13: Managing Objects</a></li>
+                        <li><a href="chapter14.html">Ch 14: Grouping Data</a></li>
+                        <li><a href="chapter15.html">Ch 15: Timezones</a></li>
+                        <li><a href="chapter16.html">Ch 16: Advanced Subqueries</a></li>
+                        <li><a href="chapter17.html">Ch 17: Hierarchical Retrieval</a></li>
+                        <li><a href="chapter18.html">Ch 18: Regular Expressions</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 17: Hierarchical Retrieval</h1>
+            <p>CONNECT BY and hierarchical queries</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Hierarchical Queries</h2>
+                
+                <p>Oracle's hierarchical queries allow you to retrieve data in a tree-like structure using CONNECT BY clause.</p>
+
+                <div class="code-block">
+-- Basic hierarchical query (top-down)
+SELECT empno, ename, job, mgr, LEVEL
+FROM emp
+START WITH mgr IS NULL
+CONNECT BY PRIOR empno = mgr
+ORDER BY LEVEL;
+
+-- Bottom-up hierarchy
+SELECT empno, ename, job, mgr, LEVEL
+FROM emp
+START WITH empno = 7369
+CONNECT BY PRIOR mgr = empno;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Hierarchical Query Components</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Clause</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>START WITH</td>
+                            <td>Defines the root of the hierarchy</td>
+                        </tr>
+                        <tr>
+                            <td>CONNECT BY</td>
+                            <td>Defines parent-child relationship</td>
+                        </tr>
+                        <tr>
+                            <td>PRIOR</td>
+                            <td>Refers to parent row</td>
+                        </tr>
+                        <tr>
+                            <td>LEVEL</td>
+                            <td>Pseudocolumn showing hierarchy level</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Formatting Hierarchical Output</h2>
+                
+                <div class="code-block">
+-- Indent based on level
+SELECT 
+    LEVEL,
+    LPAD(' ', (LEVEL-1)*2) || ename as employee_hierarchy,
+    job,
+    sal
+FROM emp
+START WITH mgr IS NULL
+CONNECT BY PRIOR empno = mgr;
+
+-- Show path from root
+SELECT 
+    LEVEL,
+    SYS_CONNECT_BY_PATH(ename, '/') as path,
+    ename,
+    job
+FROM emp
+START WITH mgr IS NULL
+CONNECT BY PRIOR empno = mgr;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Hierarchical Functions</h2>
+                
+                <div class="code-block">
+-- Check if node is leaf
+SELECT 
+    ename,
+    job,
+    CONNECT_BY_ISLEAF as is_leaf,
+    CONNECT_BY_ROOT ename as top_manager
+FROM emp
+START WITH mgr IS NULL
+CONNECT BY PRIOR empno = mgr;
+
+-- Exclude branches
+SELECT ename, job, mgr, LEVEL
+FROM emp
+START WITH mgr IS NULL
+CONNECT BY PRIOR empno = mgr
+AND job != 'ANALYST';  -- Exclude analysts and their subordinates
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Practical Examples</h2>
+                
+                <div class="code-block">
+-- Organization chart
+SELECT 
+    LEVEL,
+    LPAD(' ', (LEVEL-1)*4) || ename || ' (' || job || ')' as org_chart,
+    sal,
+    CONNECT_BY_ROOT ename as ceo
+FROM emp
+START WITH mgr IS NULL
+CONNECT BY PRIOR empno = mgr
+ORDER SIBLINGS BY sal DESC;
+
+-- Find all subordinates of a manager
+SELECT 
+    LEVEL,
+    empno,
+    ename,
+    job
+FROM emp
+START WITH empno = 7566  -- JONES
+CONNECT BY PRIOR empno = mgr;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Hierarchical Query Best Practices</h2>
+                
+                <ul>
+                    <li><strong>Avoid Cycles:</strong> Use CONNECT_BY_ISCYCLE to detect loops</li>
+                    <li><strong>Performance:</strong> Index parent-child relationship columns</li>
+                    <li><strong>Ordering:</strong> Use ORDER SIBLINGS BY for consistent ordering</li>
+                    <li><strong>Filtering:</strong> Apply WHERE after hierarchy is built</li>
+                </ul>
+
+                <div class="code-block">
+-- Detect and handle cycles
+SELECT ename, mgr, CONNECT_BY_ISCYCLE
+FROM emp
+START WITH mgr IS NULL
+CONNECT BY NOCYCLE PRIOR empno = mgr;
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter16.html">← Chapter 16: Advanced Subqueries</a>
+                <a href="chapter18.html">Next: Chapter 18 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 PITC USA. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 15: Managing Data in Different Timezones</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 3 (Ch 12-18)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter12.html">Ch 12: User Access</a></li>
+                        <li><a href="chapter13.html">Ch 13: Managing Objects</a></li>
+                        <li><a href="chapter14.html">Ch 14: Grouping Data</a></li>
+                        <li><a href="chapter15.html">Ch 15: Timezones</a></li>
+                        <li><a href="chapter16.html">Ch 16: Advanced Subqueries</a></li>
+                        <li><a href="chapter17.html">Ch 17: Hierarchical Retrieval</a></li>
+                        <li><a href="chapter18.html">Ch 18: Regular Expressions</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 15: Managing Data in Different Timezones</h1>
+            <p>Working with timezone-aware data types and functions</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Timezone Data Types</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TIMESTAMP</td>
+                            <td>Date and time with fractional seconds</td>
+                        </tr>
+                        <tr>
+                            <td>TIMESTAMP WITH TIME ZONE</td>
+                            <td>TIMESTAMP with timezone offset</td>
+                        </tr>
+                        <tr>
+                            <td>TIMESTAMP WITH LOCAL TIME ZONE</td>
+                            <td>TIMESTAMP normalized to database timezone</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+-- Create table with timezone columns
+CREATE TABLE events (
+    id NUMBER,
+    event_name VARCHAR2(100),
+    event_time TIMESTAMP,
+    event_time_tz TIMESTAMP WITH TIME ZONE,
+    event_time_ltz TIMESTAMP WITH LOCAL TIME ZONE
+);
+
+-- Insert timezone data
+INSERT INTO events VALUES (
+    1, 
+    'Conference Call',
+    TIMESTAMP '2023-12-25 14:30:00.123',
+    TIMESTAMP '2023-12-25 14:30:00.123 -05:00',
+    TIMESTAMP '2023-12-25 14:30:00.123'
+);
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Timezone Functions</h2>
+                
+                <div class="code-block">
+-- Current timestamp functions
+SELECT 
+    CURRENT_TIMESTAMP,
+    LOCALTIMESTAMP,
+    SYSTIMESTAMP
+FROM dual;
+
+-- Convert between timezones
+SELECT 
+    SYSTIMESTAMP,
+    SYSTIMESTAMP AT TIME ZONE 'US/Eastern' as eastern_time,
+    SYSTIMESTAMP AT TIME ZONE 'Europe/London' as london_time
+FROM dual;
+
+-- Extract timezone information
+SELECT 
+    EXTRACT(TIMEZONE_HOUR FROM SYSTIMESTAMP) tz_hour,
+    EXTRACT(TIMEZONE_MINUTE FROM SYSTIMESTAMP) tz_minute
+FROM dual;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Working with Timezones</h2>
+                
+                <div class="code-block">
+-- Convert timestamp to different timezone
+SELECT 
+    event_name,
+    event_time_tz,
+    event_time_tz AT TIME ZONE 'US/Pacific' as pacific_time,
+    event_time_tz AT TIME ZONE 'Asia/Tokyo' as tokyo_time
+FROM events;
+
+-- Compare times across timezones
+SELECT 
+    event_name,
+    event_time_tz,
+    CASE 
+        WHEN event_time_tz AT TIME ZONE 'UTC' > SYSTIMESTAMP AT TIME ZONE 'UTC'
+        THEN 'Future Event'
+        ELSE 'Past Event'
+    END as event_status
+FROM events;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Timezone Best Practices</h2>
+                
+                <ul>
+                    <li><strong>Store in UTC:</strong> Use TIMESTAMP WITH LOCAL TIME ZONE for global applications</li>
+                    <li><strong>Display in User Timezone:</strong> Convert for presentation</li>
+                    <li><strong>Validate Timezones:</strong> Check timezone names and offsets</li>
+                    <li><strong>Handle DST:</strong> Account for daylight saving time changes</li>
+                </ul>
+
+                <div class="code-block">
+-- Query timezone names
+SELECT * FROM V$TIMEZONE_NAMES 
+WHERE TZNAME LIKE 'US/%';
+
+-- Set session timezone
+ALTER SESSION SET TIME_ZONE = 'US/Eastern';
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter14.html">← Chapter 14: Grouping Data</a>
+                <a href="chapter16.html">Next: Chapter 16 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 PITC USA. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 16: Retrieving Data using Advanced Subqueries</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 3 (Ch 12-18)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter12.html">Ch 12: User Access</a></li>
+                        <li><a href="chapter13.html">Ch 13: Managing Objects</a></li>
+                        <li><a href="chapter14.html">Ch 14: Grouping Data</a></li>
+                        <li><a href="chapter15.html">Ch 15: Timezones</a></li>
+                        <li><a href="chapter16.html">Ch 16: Advanced Subqueries</a></li>
+                        <li><a href="chapter17.html">Ch 17: Hierarchical Retrieval</a></li>
+                        <li><a href="chapter18.html">Ch 18: Regular Expressions</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 16: Retrieving Data using Advanced Subqueries</h1>
+            <p>Correlated subqueries, EXISTS, and advanced techniques</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Correlated Subqueries</h2>
+                
+                <p>Correlated subqueries reference columns from the outer query and execute once for each row.</p>
+
+                <div class="code-block">
+-- Find employees earning more than average in their department
+SELECT empno, ename, sal, deptno
+FROM emp e1
+WHERE sal > (
+    SELECT AVG(sal)
+    FROM emp e2
+    WHERE e2.deptno = e1.deptno
+);
+
+-- Find departments with more than 3 employees
+SELECT deptno, dname
+FROM dept d
+WHERE (
+    SELECT COUNT(*)
+    FROM emp e
+    WHERE e.deptno = d.deptno
+) > 3;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. EXISTS and NOT EXISTS</h2>
+                
+                <div class="code-block">
+-- Find employees who are managers
+SELECT empno, ename, job
+FROM emp e1
+WHERE EXISTS (
+    SELECT 1
+    FROM emp e2
+    WHERE e2.mgr = e1.empno
+);
+
+-- Find departments with no employees
+SELECT deptno, dname
+FROM dept d
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM emp e
+    WHERE e.deptno = d.deptno
+);
+                </div>
+
+                <div class="highlight-box">
+                    <strong>EXISTS vs IN:</strong>
+                    <ul>
+                        <li>EXISTS is often faster for large datasets</li>
+                        <li>EXISTS handles NULL values better</li>
+                        <li>EXISTS stops at first match</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Scalar Subqueries</h2>
+                
+                <div class="code-block">
+-- Use subquery in SELECT clause
+SELECT 
+    empno,
+    ename,
+    sal,
+    (SELECT dname FROM dept WHERE deptno = emp.deptno) as dept_name,
+    sal - (SELECT AVG(sal) FROM emp) as sal_diff
+FROM emp;
+
+-- Subquery in ORDER BY
+SELECT empno, ename, sal
+FROM emp
+ORDER BY (SELECT COUNT(*) FROM emp e2 WHERE e2.deptno = emp.deptno) DESC;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Advanced Subquery Techniques</h2>
+                
+                <div class="code-block">
+-- Multiple column subqueries
+SELECT empno, ename, sal, deptno
+FROM emp
+WHERE (sal, deptno) IN (
+    SELECT MAX(sal), deptno
+    FROM emp
+    GROUP BY deptno
+);
+
+-- Subquery with CASE
+SELECT 
+    empno,
+    ename,
+    CASE 
+        WHEN sal > (SELECT AVG(sal) FROM emp) THEN 'Above Average'
+        WHEN sal < (SELECT AVG(sal) FROM emp) THEN 'Below Average'
+        ELSE 'Average'
+    END as salary_category
+FROM emp;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Performance Considerations</h2>
+                
+                <ul>
+                    <li><strong>Correlated vs Non-correlated:</strong> Non-correlated usually faster</li>
+                    <li><strong>EXISTS vs IN:</strong> EXISTS often better for large datasets</li>
+                    <li><strong>Indexes:</strong> Ensure subquery columns are indexed</li>
+                    <li><strong>Alternatives:</strong> Consider JOINs for better performance</li>
+                </ul>
+
+                <div class="code-block">
+-- Convert correlated subquery to JOIN (often faster)
+-- Instead of:
+SELECT empno, ename, sal
+FROM emp e1
+WHERE sal > (SELECT AVG(sal) FROM emp e2 WHERE e2.deptno = e1.deptno);
+
+-- Use:
+SELECT e.empno, e.ename, e.sal
+FROM emp e
+JOIN (
+    SELECT deptno, AVG(sal) avg_sal
+    FROM emp
+    GROUP BY deptno
+) dept_avg ON e.deptno = dept_avg.deptno
+WHERE e.sal > dept_avg.avg_sal;
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter15.html">← Chapter 15: Timezones</a>
+                <a href="chapter17.html">Next: Chapter 17 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 PITC USA. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

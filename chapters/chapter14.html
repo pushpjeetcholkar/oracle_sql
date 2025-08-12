@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 14: Generating Reports by Grouping Related Data</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 3 (Ch 12-18)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter12.html">Ch 12: User Access</a></li>
+                        <li><a href="chapter13.html">Ch 13: Managing Objects</a></li>
+                        <li><a href="chapter14.html">Ch 14: Grouping Data</a></li>
+                        <li><a href="chapter15.html">Ch 15: Timezones</a></li>
+                        <li><a href="chapter16.html">Ch 16: Advanced Subqueries</a></li>
+                        <li><a href="chapter17.html">Ch 17: Hierarchical Retrieval</a></li>
+                        <li><a href="chapter18.html">Ch 18: Regular Expressions</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 14: Generating Reports by Grouping Related Data</h1>
+            <p>Advanced grouping with ROLLUP, CUBE, and GROUPING SETS</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. Advanced Grouping Functions</h2>
+                
+                <p>Oracle provides enhanced GROUP BY capabilities for generating subtotals and cross-tabulation reports.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ROLLUP</td>
+                            <td>Generate subtotals and grand totals</td>
+                        </tr>
+                        <tr>
+                            <td>CUBE</td>
+                            <td>Generate all possible subtotal combinations</td>
+                        </tr>
+                        <tr>
+                            <td>GROUPING SETS</td>
+                            <td>Specify exact grouping combinations</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="content-section">
+                <h2>2. ROLLUP</h2>
+                
+                <div class="code-block">
+-- Basic ROLLUP example
+SELECT deptno, job, SUM(sal)
+FROM emp
+GROUP BY ROLLUP(deptno, job)
+ORDER BY deptno, job;
+
+-- ROLLUP with multiple levels
+SELECT 
+    TO_CHAR(hiredate, 'YYYY') year,
+    TO_CHAR(hiredate, 'Q') quarter,
+    COUNT(*) employees
+FROM emp
+GROUP BY ROLLUP(TO_CHAR(hiredate, 'YYYY'), TO_CHAR(hiredate, 'Q'));
+                </div>
+
+                <p>ROLLUP creates hierarchical subtotals from right to left, plus a grand total.</p>
+            </section>
+
+            <section class="content-section">
+                <h2>3. CUBE</h2>
+                
+                <div class="code-block">
+-- CUBE generates all possible combinations
+SELECT deptno, job, SUM(sal)
+FROM emp
+GROUP BY CUBE(deptno, job)
+ORDER BY deptno, job;
+
+-- CUBE with three dimensions
+SELECT 
+    deptno,
+    job,
+    TO_CHAR(hiredate, 'YYYY') year,
+    COUNT(*) employees
+FROM emp
+GROUP BY CUBE(deptno, job, TO_CHAR(hiredate, 'YYYY'));
+                </div>
+
+                <p>CUBE generates 2^n grouping combinations where n is the number of columns.</p>
+            </section>
+
+            <section class="content-section">
+                <h2>4. GROUPING SETS</h2>
+                
+                <div class="code-block">
+-- Specify exact grouping combinations
+SELECT deptno, job, SUM(sal)
+FROM emp
+GROUP BY GROUPING SETS(
+    (deptno, job),
+    (deptno),
+    (job),
+    ()
+);
+
+-- Multiple specific groupings
+SELECT 
+    deptno,
+    job,
+    mgr,
+    SUM(sal)
+FROM emp
+GROUP BY GROUPING SETS(
+    (deptno),
+    (job),
+    (mgr),
+    (deptno, job)
+);
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. GROUPING Function</h2>
+                
+                <div class="code-block">
+-- Use GROUPING to identify subtotal rows
+SELECT 
+    CASE GROUPING(deptno) 
+        WHEN 1 THEN 'All Departments'
+        ELSE TO_CHAR(deptno)
+    END as department,
+    CASE GROUPING(job)
+        WHEN 1 THEN 'All Jobs'
+        ELSE job
+    END as job_title,
+    SUM(sal) total_salary
+FROM emp
+GROUP BY ROLLUP(deptno, job);
+                </div>
+
+                <p>GROUPING function returns 1 for subtotal rows, 0 for regular rows.</p>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Practical Examples</h2>
+                
+                <div class="code-block">
+-- Sales report with subtotals
+SELECT 
+    DECODE(GROUPING(deptno), 1, 'TOTAL', TO_CHAR(deptno)) dept,
+    DECODE(GROUPING(job), 1, 'ALL JOBS', job) position,
+    COUNT(*) employees,
+    SUM(sal) total_salary,
+    ROUND(AVG(sal)) avg_salary
+FROM emp
+GROUP BY ROLLUP(deptno, job)
+ORDER BY deptno, job;
+
+-- Cross-tabulation report
+SELECT 
+    job,
+    SUM(CASE WHEN deptno = 10 THEN sal END) dept_10,
+    SUM(CASE WHEN deptno = 20 THEN sal END) dept_20,
+    SUM(CASE WHEN deptno = 30 THEN sal END) dept_30,
+    SUM(sal) total
+FROM emp
+GROUP BY job;
+                </div>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter13.html">← Chapter 13: Managing Objects</a>
+                <a href="chapter15.html">Next: Chapter 15 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 PITC USA. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oracle SQL Complete Guide - Chapters 1-18</title>
     <link rel="stylesheet" href="styles/main.css">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-container">
@@ -88,7 +90,7 @@
                         </ul>
                         <a href="chapters/chapter1.html" class="card-link">Start Book 1 →</a>
                     </div>
-                    
+
                     <div class="book-card">
                         <div class="book-icon">🏗️</div>
                         <h3>Book 2: Database Objects</h3>
@@ -100,7 +102,7 @@
                         </ul>
                         <a href="chapters/chapter9.html" class="card-link">Start Book 2 →</a>
                     </div>
-                    
+
                     <div class="book-card">
                         <div class="book-icon">🔧</div>
                         <h3>Book 3: Advanced Topics</h3>
@@ -165,50 +167,62 @@
                     <div class="reference-card">
                         <h3>Basic Syntax</h3>
                         <div class="code-block">
-SELECT column1, column2
-FROM table_name
-WHERE condition
-ORDER BY column1;
+                            SELECT column1, column2
+                            FROM table_name
+                            WHERE condition
+                            ORDER BY column1;
                         </div>
                     </div>
                     <div class="reference-card">
                         <h3>Common Functions</h3>
                         <div class="code-block">
--- String Functions
-UPPER(), LOWER(), SUBSTR()
-CONCAT(), LENGTH(), TRIM()
+                            -- String Functions
+                            UPPER(), LOWER(), SUBSTR()
+                            CONCAT(), LENGTH(), TRIM()
 
--- Date Functions
-SYSDATE, ADD_MONTHS()
-MONTHS_BETWEEN(), TO_DATE()
+                            -- Date Functions
+                            SYSDATE, ADD_MONTHS()
+                            MONTHS_BETWEEN(), TO_DATE()
 
--- Numeric Functions
-ROUND(), TRUNC(), MOD()
+                            -- Numeric Functions
+                            ROUND(), TRUNC(), MOD()
                         </div>
                     </div>
                     <div class="reference-card">
                         <h3>Join Types</h3>
                         <div class="code-block">
--- Inner Join
-SELECT * FROM t1 
-INNER JOIN t2 ON t1.id = t2.id;
+                            -- Inner Join
+                            SELECT * FROM t1
+                            INNER JOIN t2 ON t1.id = t2.id;
 
--- Left Outer Join
-SELECT * FROM t1 
-LEFT JOIN t2 ON t1.id = t2.id;
+                            -- Left Outer Join
+                            SELECT * FROM t1
+                            LEFT JOIN t2 ON t1.id = t2.id;
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section class="scott-download" style="padding: 40px 0; background: #e8f4fd; text-align: center;">
+            <div class="container">
+                <h3 style="color: #1e3a8a; margin-bottom: 1rem;">📊 Download Scott Schema</h3>
+                <p style="margin-bottom: 1.5rem; color: #374151;">Get Oracle's classic sample database (EMP, DEPT,
+                    SALGRADE tables) for practicing SQL</p>
+                <a href="scott-schema.sql" download="scott-schema.sql" class="btn btn-primary">
+                    📥 Download Scott Schema SQL
+                </a>
             </div>
         </section>
     </main>
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+            <p>&copy; 2025 PITC USA. All rights reserved.</p>
         </div>
     </footer>
 
     <script src="scripts/main.js"></script>
 </body>
+
 </html>

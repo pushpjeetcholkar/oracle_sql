@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 13: Managing Schema Objects</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Oracle SQL Guide</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">Book 3 (Ch 12-18)</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chapter12.html">Ch 12: User Access</a></li>
+                        <li><a href="chapter13.html">Ch 13: Managing Objects</a></li>
+                        <li><a href="chapter14.html">Ch 14: Grouping Data</a></li>
+                        <li><a href="chapter15.html">Ch 15: Timezones</a></li>
+                        <li><a href="chapter16.html">Ch 16: Advanced Subqueries</a></li>
+                        <li><a href="chapter17.html">Ch 17: Hierarchical Retrieval</a></li>
+                        <li><a href="chapter18.html">Ch 18: Regular Expressions</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Chapter 13: Managing Schema Objects</h1>
+            <p>ALTER TABLE and schema object management</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container">
+            <section class="content-section">
+                <h2>1. ALTER TABLE Statement</h2>
+                
+                <p>Use ALTER TABLE to modify existing table structure:</p>
+                <ul>
+                    <li>Add new columns</li>
+                    <li>Modify existing columns</li>
+                    <li>Define default values</li>
+                    <li>Drop columns</li>
+                </ul>
+
+                <div class="code-block">
+-- Add column
+ALTER TABLE emp_master 
+ADD (date_of_birth DATE);
+
+-- Add multiple columns
+ALTER TABLE emp_master 
+ADD (phone VARCHAR2(15), email VARCHAR2(100));
+
+-- Modify column
+ALTER TABLE emp_master 
+MODIFY (ename VARCHAR2(50));
+
+-- Drop column
+ALTER TABLE emp_master 
+DROP COLUMN date_of_birth;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Adding Columns</h2>
+                
+                <div class="code-block">
+-- Add column with default value
+ALTER TABLE emp_master 
+ADD (status VARCHAR2(10) DEFAULT 'ACTIVE');
+
+-- Add NOT NULL column (only if table is empty)
+ALTER TABLE empty_table 
+ADD (required_field VARCHAR2(20) NOT NULL);
+                </div>
+
+                <div class="warning-box">
+                    <strong>Important:</strong> You cannot add a NOT NULL column to a table that contains data unless you provide a default value.
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Modifying Columns</h2>
+                
+                <div class="code-block">
+-- Increase column size
+ALTER TABLE emp_master 
+MODIFY (ename VARCHAR2(100));
+
+-- Change data type (if compatible)
+ALTER TABLE emp_master 
+MODIFY (empno NUMBER(10));
+
+-- Add NOT NULL constraint
+ALTER TABLE emp_master 
+MODIFY (ename NOT NULL);
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Managing Constraints</h2>
+                
+                <div class="code-block">
+-- Add constraint
+ALTER TABLE emp_master 
+ADD CONSTRAINT emp_pk PRIMARY KEY (empno);
+
+-- Add foreign key
+ALTER TABLE emp_master 
+ADD CONSTRAINT emp_dept_fk 
+FOREIGN KEY (deptno) REFERENCES dept(deptno);
+
+-- Drop constraint
+ALTER TABLE emp_master 
+DROP CONSTRAINT emp_pk;
+
+-- Disable constraint
+ALTER TABLE emp_master 
+DISABLE CONSTRAINT emp_dept_fk;
+
+-- Enable constraint
+ALTER TABLE emp_master 
+ENABLE CONSTRAINT emp_dept_fk;
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. Best Practices</h2>
+                
+                <ul>
+                    <li><strong>Plan Changes:</strong> Test ALTER statements on development first</li>
+                    <li><strong>Backup Data:</strong> Always backup before major changes</li>
+                    <li><strong>Check Dependencies:</strong> Verify impact on views, procedures</li>
+                    <li><strong>Monitor Performance:</strong> Large tables may take time to alter</li>
+                </ul>
+            </section>
+
+            <div class="chapter-nav">
+                <a href="chapter12.html">← Chapter 12: User Access</a>
+                <a href="chapter14.html">Next: Chapter 14 →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 PITC USA. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

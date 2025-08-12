@@ -24,18 +24,6 @@
                         <li><a href="chapter11.html">Ch 11: Data Dictionary</a></li>
                     </ul>
                 </li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link">Book 3 (Ch 12-18)</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="chapter12.html">Ch 12: User Access</a></li>
-                        <li><a href="chapter13.html">Ch 13: Managing Objects</a></li>
-                        <li><a href="chapter14.html">Ch 14: Grouping Data</a></li>
-                        <li><a href="chapter15.html">Ch 15: Timezones</a></li>
-                        <li><a href="chapter16.html">Ch 16: Advanced Subqueries</a></li>
-                        <li><a href="chapter17.html">Ch 17: Hierarchical Retrieval</a></li>
-                        <li><a href="chapter18.html">Ch 18: Regular Expressions</a></li>
-                    </ul>
-                </li>
             </ul>
         </div>
     </nav>
@@ -43,7 +31,7 @@
     <header class="page-header">
         <div class="container">
             <h1>Chapter 11: Managing Objects with Data Dictionary Views</h1>
-            <p>Explore Oracle's metadata repository and system information</p>
+            <p>Explore Oracle's metadata repository</p>
         </div>
     </header>
 
@@ -52,590 +40,159 @@
             <section class="content-section">
                 <h2>1. Data Dictionary Overview</h2>
                 
-                <div class="highlight-box">
-                    <h3>Two Types of Tables in Oracle:</h3>
+                <p>The Data Dictionary is a collection of tables and views maintained by Oracle Server containing database metadata.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>User Tables</td>
+                            <td>Tables created by users (EMP, DEPT, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td>Data Dictionary</td>
+                            <td>Oracle-maintained metadata tables and views</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note-box">
+                    <strong>Key Points:</strong>
                     <ul>
-                        <li><strong>User Tables:</strong> Tables created by Oracle users (e.g., EMP, DEPT)</li>
-                        <li><strong>Data Dictionary:</strong> Collection of tables and views created and maintained by Oracle Server</li>
+                        <li>Read-only access (queries only)</li>
+                        <li>Owned by SYS user</li>
+                        <li>Contains information about all database objects</li>
+                        <li>Updated automatically by Oracle</li>
                     </ul>
                 </div>
-
-                <p>The Data Dictionary contains information about the database and is read-only. You can only query its tables and views.</p>
-
-                <h3>Information Available in Data Dictionary:</h3>
-                <ul>
-                    <li>Definitions of all schema objects (tables, views, indexes, synonyms, sequences, procedures, functions, packages, triggers)</li>
-                    <li>Default values of columns</li>
-                    <li>Column constraint information</li>
-                    <li>Names of Oracle users</li>
-                    <li>Privileges and roles granted to each user</li>
-                    <li>General database information</li>
-                </ul>
             </section>
 
             <section class="content-section">
                 <h2>2. Data Dictionary Structure</h2>
                 
-                <p>The Oracle Server data dictionary consists of:</p>
-                <ul>
-                    <li><strong>Base Tables:</strong> Underlying storage for metadata</li>
-                    <li><strong>User-Accessible Views:</strong> Formatted views of base tables</li>
-                </ul>
-
-                <div class="note-box">
-                    <strong>Important:</strong> The Oracle user SYS owns all base tables and user-accessible views. No Oracle user should ever alter any rows or schema objects in the SYS schema.
-                </div>
-
-                <h3>Data Dictionary View Prefixes:</h3>
+                <h3>View Prefixes:</h3>
                 <table>
                     <thead>
                         <tr>
                             <th>Prefix</th>
+                            <th>Scope</th>
                             <th>Description</th>
-                            <th>Access Level</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>USER_</td>
-                            <td>Objects owned by the current user</td>
-                            <td>Your objects only</td>
+                            <td>User's objects</td>
+                            <td>Objects owned by current user</td>
                         </tr>
                         <tr>
                             <td>ALL_</td>
-                            <td>Objects accessible to the current user</td>
-                            <td>Your objects + granted access</td>
+                            <td>Accessible objects</td>
+                            <td>Objects user can access</td>
                         </tr>
                         <tr>
                             <td>DBA_</td>
-                            <td>All objects in the database</td>
-                            <td>All objects (DBA privileges required)</td>
+                            <td>All objects</td>
+                            <td>All objects in database (DBA only)</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div class="highlight-box">
-                    <strong>Note:</strong> Views prefixed with ALL_ or DBA_ contain an additional OWNER column to identify who owns the object.
+                <div class="code-block">
+-- View your objects
+SELECT object_name, object_type FROM user_objects;
+
+-- View all accessible objects
+SELECT owner, object_name, object_type FROM all_objects;
+
+-- View all database objects (DBA privilege required)
+SELECT owner, object_name, object_type FROM dba_objects;
                 </div>
             </section>
 
             <section class="content-section">
-                <h2>3. Using Dictionary Views</h2>
+                <h2>3. Common Data Dictionary Views</h2>
                 
-                <p>Start with the DICTIONARY view, which contains names and descriptions of all dictionary tables and views.</p>
-
+                <h3>Table Information:</h3>
                 <div class="code-block">
--- Describe the DICTIONARY view
-DESCRIBE dictionary;
-
--- Find information about USER_OBJECTS
-SELECT * FROM dictionary WHERE table_name = 'USER_OBJECTS';
-
--- Search for views related to columns
-SELECT table_name
-FROM dictionary
-WHERE LOWER(comments) LIKE '%columns%';
-                </div>
-
-                <div class="note-box">
-                    <strong>DICTIONARY View:</strong> Your starting point for exploring the data dictionary. Use it to find the right view for your needs.
-                </div>
-            </section>
-
-            <section class="content-section">
-                <h2>4. USER_OBJECTS and ALL_OBJECTS Views</h2>
-                
-                <h3>USER_OBJECTS View:</h3>
-                <p>Shows all objects owned by the current user.</p>
-
-                <div class="code-block">
--- View all your objects
-SELECT object_name, object_type, created, status
-FROM user_objects
-ORDER BY object_type, object_name;
-
--- Find specific object types
-SELECT object_name FROM user_objects WHERE object_type = 'TABLE';
-SELECT object_name FROM user_objects WHERE object_type = 'VIEW';
-SELECT object_name FROM user_objects WHERE object_type = 'SEQUENCE';
-                </div>
-
-                <h3>USER_OBJECTS Columns:</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Column</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>OBJECT_NAME</td>
-                            <td>Name of the object</td>
-                        </tr>
-                        <tr>
-                            <td>OBJECT_ID</td>
-                            <td>System-generated number of the object</td>
-                        </tr>
-                        <tr>
-                            <td>OBJECT_TYPE</td>
-                            <td>Type of object (TABLE, VIEW, INDEX, SEQUENCE, etc.)</td>
-                        </tr>
-                        <tr>
-                            <td>CREATED</td>
-                            <td>Timestamp for object creation</td>
-                        </tr>
-                        <tr>
-                            <td>LAST_DDL_TIME</td>
-                            <td>Timestamp for last DDL modification</td>
-                        </tr>
-                        <tr>
-                            <td>STATUS</td>
-                            <td>Object status (VALID, INVALID, N/A)</td>
-                        </tr>
-                        <tr>
-                            <td>GENERATED</td>
-                            <td>Was the object name system-generated?</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>CAT View (Synonym for USER_CATALOG):</h3>
-                <div class="code-block">
--- CAT view shows tables, views, synonyms, and sequences
-SELECT table_name, table_type FROM cat;
-                </div>
-            </section>
-
-            <section class="content-section">
-                <h2>5. Table Information</h2>
-                
-                <div class="code-block">
--- Describe USER_TABLES view
-DESCRIBE user_tables;
-
--- List all your tables
+-- View table information
 SELECT table_name FROM user_tables;
 
--- TAB is a synonym for USER_TABLES
-SELECT table_name FROM tab WHERE table_type = 'TABLE';
-
--- View all accessible tables (including others' tables you can access)
-SELECT owner, table_name FROM all_tables;
-                </div>
-
-                <div class="note-box">
-                    <strong>Table Views:</strong>
-                    <ul>
-                        <li><strong>USER_TABLES:</strong> Tables you own</li>
-                        <li><strong>ALL_TABLES:</strong> Tables you can access</li>
-                        <li><strong>TAB:</strong> Synonym for USER_TABLES</li>
-                    </ul>
-                </div>
-            </section>
-
-            <section class="content-section">
-                <h2>6. Column Information</h2>
-                
-                <div class="code-block">
--- Describe column information view
-DESCRIBE user_tab_columns;
-
--- Get detailed column information for EMP table
-SELECT column_name, data_type, data_length, data_precision,
-       data_scale, nullable, data_default
-FROM user_tab_columns
-WHERE table_name = 'EMP'
-ORDER BY column_id;
-
--- Find columns with specific data types
-SELECT table_name, column_name 
+-- View column information
+SELECT column_name, data_type, nullable 
 FROM user_tab_columns 
-WHERE data_type = 'DATE';
+WHERE table_name = 'EMP';
 
--- Find nullable columns
-SELECT table_name, column_name 
-FROM user_tab_columns 
-WHERE nullable = 'Y';
-                </div>
-
-                <h3>USER_TAB_COLUMNS Information:</h3>
-                <ul>
-                    <li>Column name and data type</li>
-                    <li>Length of data types</li>
-                    <li>Precision and scale for NUMBER columns</li>
-                    <li>Whether NULLs are allowed</li>
-                    <li>Default values</li>
-                    <li>Column position in table</li>
-                </ul>
-            </section>
-
-            <section class="content-section">
-                <h2>7. Constraint Information</h2>
-                
-                <h3>USER_CONSTRAINTS View:</h3>
-                <div class="code-block">
--- Describe constraints view
-DESCRIBE user_constraints;
-
--- View constraints for EMP table
-SELECT constraint_name, constraint_type, search_condition,
-       r_constraint_name, delete_rule, status
+-- View constraints
+SELECT constraint_name, constraint_type, table_name
 FROM user_constraints
 WHERE table_name = 'EMP';
-
--- Find all primary key constraints
-SELECT table_name, constraint_name 
-FROM user_constraints 
-WHERE constraint_type = 'P';
                 </div>
 
-                <h3>Constraint Types:</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>C</td>
-                            <td>Check constraint or NOT NULL</td>
-                        </tr>
-                        <tr>
-                            <td>P</td>
-                            <td>Primary key</td>
-                        </tr>
-                        <tr>
-                            <td>U</td>
-                            <td>Unique key</td>
-                        </tr>
-                        <tr>
-                            <td>R</td>
-                            <td>Referential integrity (foreign key)</td>
-                        </tr>
-                        <tr>
-                            <td>V</td>
-                            <td>View with CHECK OPTION</td>
-                        </tr>
-                        <tr>
-                            <td>O</td>
-                            <td>View with READ ONLY</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>USER_CONS_COLUMNS View:</h3>
+                <h3>Index Information:</h3>
                 <div class="code-block">
--- Describe constraint columns view
-DESCRIBE user_cons_columns;
+-- View indexes
+SELECT index_name, table_name, uniqueness
+FROM user_indexes;
 
--- View constraint column details
-SELECT constraint_name, column_name, position
-FROM user_cons_columns
-WHERE table_name = 'EMP'
-ORDER BY constraint_name, position;
-
--- Example with composite primary key
-CREATE TABLE a (
-    id1 NUMBER,
-    id2 NUMBER,
-    name VARCHAR2(30),
-    sal NUMBER CONSTRAINT a_sal_positive CHECK(sal > 0),
-    CONSTRAINT a_primary_key PRIMARY KEY(id1, id2)
-);
-
--- View the constraint columns with positions
-SELECT constraint_name, position, column_name
-FROM user_cons_columns
-WHERE table_name = 'A'
-ORDER BY constraint_name, position;
+-- View index columns
+SELECT index_name, column_name, column_position
+FROM user_ind_columns
+WHERE table_name = 'EMP';
                 </div>
 
-                <div class="note-box">
-                    <strong>POSITION Column:</strong>
-                    <ul>
-                        <li>Shows order of columns in PRIMARY KEY, UNIQUE, and FOREIGN KEY constraints</li>
-                        <li>NULL for CHECK constraints (no ordering required)</li>
-                        <li>Important for composite keys</li>
-                    </ul>
-                </div>
-            </section>
-
-            <section class="content-section">
-                <h2>8. View Information</h2>
-                
+                <h3>View Information:</h3>
                 <div class="code-block">
--- Describe views information
-DESCRIBE user_views;
-
--- List all your views
+-- View information about views
 SELECT view_name FROM user_views;
 
--- Get view definition (first 80 characters by default)
-SELECT text FROM user_views
-WHERE view_name = 'EMPVU20';
-
--- To see complete view definition, set LONG parameter
-SET LONG 1000;
-SELECT text FROM user_views
-WHERE view_name = 'EMPVU20';
+-- View definition
+SELECT text FROM user_views WHERE view_name = 'EMP_VIEW';
                 </div>
 
-                <div class="highlight-box">
-                    <strong>View Text Storage:</strong>
-                    <ul>
-                        <li>View definition stored in LONG column</li>
-                        <li>Default display shows only 80 characters</li>
-                        <li>Use SET LONG to see complete definition</li>
-                        <li>Contains the SELECT statement that defines the view</li>
-                    </ul>
-                </div>
-            </section>
-
-            <section class="content-section">
-                <h2>9. Sequence Information</h2>
-                
+                <h3>Sequence Information:</h3>
                 <div class="code-block">
--- Describe sequences view
-DESCRIBE user_sequences;
-
--- View sequence details
-SELECT sequence_name, min_value, max_value, increment_by, 
-       last_number, cache_size, cycle_flag
+-- View sequences
+SELECT sequence_name, min_value, max_value, increment_by
 FROM user_sequences;
-
--- Check specific sequence
-SELECT sequence_name, min_value, max_value, increment_by, last_number
-FROM user_sequences 
-WHERE sequence_name = 'EMP_EMPNO_SEQ';
                 </div>
-
-                <h3>USER_SEQUENCES Columns:</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Column</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>SEQUENCE_NAME</td>
-                            <td>Name of the sequence</td>
-                        </tr>
-                        <tr>
-                            <td>MIN_VALUE</td>
-                            <td>Minimum value of the sequence</td>
-                        </tr>
-                        <tr>
-                            <td>MAX_VALUE</td>
-                            <td>Maximum value of the sequence</td>
-                        </tr>
-                        <tr>
-                            <td>INCREMENT_BY</td>
-                            <td>Value by which sequence is incremented</td>
-                        </tr>
-                        <tr>
-                            <td>CYCLE_FLAG</td>
-                            <td>Does sequence wrap around on reaching limit?</td>
-                        </tr>
-                        <tr>
-                            <td>CACHE_SIZE</td>
-                            <td>Number of sequence numbers to cache</td>
-                        </tr>
-                        <tr>
-                            <td>LAST_NUMBER</td>
-                            <td>Next available sequence number (if NOCACHE)</td>
-                        </tr>
-                    </tbody>
-                </table>
             </section>
 
             <section class="content-section">
-                <h2>10. Synonym Information</h2>
+                <h2>4. Practical Examples</h2>
                 
                 <div class="code-block">
--- Describe synonyms view
-DESCRIBE user_synonyms;
-
--- View all your synonyms
-SELECT * FROM user_synonyms;
-
--- View all accessible synonyms
-SELECT owner, synonym_name, table_owner, table_name
-FROM all_synonyms
-WHERE synonym_name LIKE 'EMP%';
-                </div>
-
-                <h3>USER_SYNONYMS Columns:</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Column</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>SYNONYM_NAME</td>
-                            <td>Name of the synonym</td>
-                        </tr>
-                        <tr>
-                            <td>TABLE_OWNER</td>
-                            <td>Owner of the object referenced by synonym</td>
-                        </tr>
-                        <tr>
-                            <td>TABLE_NAME</td>
-                            <td>Name of the table or view referenced</td>
-                        </tr>
-                        <tr>
-                            <td>DB_LINK</td>
-                            <td>Database link reference (if any)</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-
-            <section class="content-section">
-                <h2>11. Adding Comments to Tables</h2>
-                
-                <div class="code-block">
--- Add comment to table
-COMMENT ON TABLE emp IS 'Employee Information';
-
--- Add comment to column
-COMMENT ON COLUMN emp.ename IS 'Employee Name';
-
--- View table comments
-SELECT comments FROM user_tab_comments 
-WHERE table_name = 'EMP';
-
--- View column comments
-SELECT column_name, comments 
-FROM user_col_comments 
-WHERE table_name = 'EMP';
-
--- Remove comment (set to empty string)
-COMMENT ON TABLE emp IS '';
-
--- Verify comment removal
-SELECT comments FROM user_tab_comments 
-WHERE table_name = 'EMP';
-                </div>
-
-                <h3>Comment Views:</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>View</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>USER_TAB_COMMENTS</td>
-                            <td>Comments on your tables</td>
-                        </tr>
-                        <tr>
-                            <td>ALL_TAB_COMMENTS</td>
-                            <td>Comments on accessible tables</td>
-                        </tr>
-                        <tr>
-                            <td>USER_COL_COMMENTS</td>
-                            <td>Comments on your table columns</td>
-                        </tr>
-                        <tr>
-                            <td>ALL_COL_COMMENTS</td>
-                            <td>Comments on accessible table columns</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-
-            <section class="content-section">
-                <h2>12. Practical Data Dictionary Queries</h2>
-                
-                <h3>Find Tables with Specific Columns:</h3>
-                <div class="code-block">
--- Find tables containing 'EMPNO' column
+-- Find all tables with specific column
 SELECT table_name 
 FROM user_tab_columns 
-WHERE column_name = 'EMPNO';
+WHERE column_name = 'DEPTNO';
 
--- Find tables with DATE columns
-SELECT DISTINCT table_name 
-FROM user_tab_columns 
-WHERE data_type = 'DATE';
-                </div>
+-- Check table constraints
+SELECT constraint_name, constraint_type,
+       DECODE(constraint_type, 
+              'P', 'Primary Key',
+              'R', 'Foreign Key', 
+              'C', 'Check',
+              'U', 'Unique') as constraint_desc
+FROM user_constraints 
+WHERE table_name = 'EMP';
 
-                <h3>Analyze Table Constraints:</h3>
-                <div class="code-block">
--- Find tables without primary keys
-SELECT table_name 
-FROM user_tables
-WHERE table_name NOT IN (
-    SELECT table_name 
-    FROM user_constraints 
-    WHERE constraint_type = 'P'
+-- View foreign key relationships
+SELECT a.constraint_name, a.table_name, a.column_name,
+       b.table_name as referenced_table,
+       b.column_name as referenced_column
+FROM user_cons_columns a, user_cons_columns b
+WHERE a.constraint_name = b.constraint_name
+AND a.position = b.position
+AND a.constraint_name IN (
+    SELECT constraint_name FROM user_constraints 
+    WHERE constraint_type = 'R'
 );
-
--- Find foreign key relationships
-SELECT a.table_name child_table,
-       a.column_name child_column,
-       b.table_name parent_table,
-       b.column_name parent_column
-FROM user_cons_columns a, user_cons_columns b, user_constraints c
-WHERE a.constraint_name = c.constraint_name
-AND c.r_constraint_name = b.constraint_name
-AND c.constraint_type = 'R';
-                </div>
-
-                <h3>Object Dependencies:</h3>
-                <div class="code-block">
--- Find objects that depend on a table
-SELECT name, type 
-FROM user_dependencies 
-WHERE referenced_name = 'EMP';
-
--- Find invalid objects
-SELECT object_name, object_type 
-FROM user_objects 
-WHERE status = 'INVALID';
-                </div>
-
-                <h3>Storage Information:</h3>
-                <div class="code-block">
--- View table sizes (requires DBA privileges or access to DBA_SEGMENTS)
-SELECT segment_name, segment_type, bytes/1024/1024 as size_mb
-FROM user_segments
-WHERE segment_type = 'TABLE'
-ORDER BY bytes DESC;
-                </div>
-            </section>
-
-            <section class="content-section">
-                <h2>13. Best Practices</h2>
-                
-                <ul>
-                    <li><strong>Start with DICTIONARY:</strong> Use it to find the right data dictionary view</li>
-                    <li><strong>Use appropriate prefix:</strong> USER_ for your objects, ALL_ for accessible objects</li>
-                    <li><strong>Document your objects:</strong> Add meaningful comments to tables and columns</li>
-                    <li><strong>Monitor object status:</strong> Regularly check for invalid objects</li>
-                    <li><strong>Understand dependencies:</strong> Know which objects depend on others</li>
-                    <li><strong>Use consistent naming:</strong> Follow naming conventions for easier management</li>
-                </ul>
-
-                <div class="highlight-box">
-                    <strong>Common Data Dictionary Queries:</strong>
-                    <ul>
-                        <li>Find object definitions and metadata</li>
-                        <li>Analyze table structures and relationships</li>
-                        <li>Monitor object status and dependencies</li>
-                        <li>Document database schema</li>
-                        <li>Troubleshoot permission issues</li>
-                    </ul>
                 </div>
             </section>
 
@@ -648,7 +205,7 @@ ORDER BY bytes DESC;
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 Oracle SQL Complete Guide. All rights reserved.</p>
+            <p>&copy; 2025 PITC USA. All rights reserved.</p>
         </div>
     </footer>
 
