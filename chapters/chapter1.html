@@ -17,16 +17,33 @@
                     <a href="../index.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link">Book 1 (Ch 1-8)</a>
+                    <a href="#" class="nav-link">SQL</a>
                     <ul class="dropdown-menu">
-                        <li><a href="chapter1.html">Ch 1: SELECT Statement</a></li>
-                        <li><a href="chapter2.html">Ch 2: Restricting & Sorting</a></li>
-                        <li><a href="chapter3.html">Ch 3: Single Row Functions</a></li>
-                        <li><a href="chapter4.html">Ch 4: Group Functions</a></li>
-                        <li><a href="chapter5.html">Ch 5: Multiple Tables</a></li>
-                        <li><a href="chapter6.html">Ch 6: Subqueries</a></li>
-                        <li><a href="chapter7.html">Ch 7: Set Operators</a></li>
-                        <li><a href="chapter8.html">Ch 8: Manipulating Data</a></li>
+                        <li><a href="chapter1.html">SELECT Statement</a></li>
+                        <li><a href="chapter2.html">Restricting & Sorting</a></li>
+                        <li><a href="chapter3.html">Single Row Functions</a></li>
+                        <li><a href="chapter4.html">Group Functions</a></li>
+                        <li><a href="chapter5.html">Multiple Tables</a></li>
+                        <li><a href="chapter6.html">Subqueries</a></li>
+                        <li><a href="chapter7.html">Set Operators</a></li>
+                        <li><a href="chapter8.html">Manipulating Data</a></li>
+                        <li><a href="chapter9.html">DDL Statements</a></li>
+                        <li><a href="chapter10.html">Schema Objects</a></li>
+                        <li><a href="chapter11.html">Data Dictionary</a></li>
+                        <li><a href="chapter12.html">User Access</a></li>
+                        <li><a href="chapter13.html">Managing Objects</a></li>
+                        <li><a href="chapter14.html">Grouping Data</a></li>
+                        <li><a href="chapter15.html">Timezones</a></li>
+                        <li><a href="chapter16.html">Advanced Subqueries</a></li>
+                        <li><a href="chapter17.html">Hierarchical Retrieval</a></li>
+                        <li><a href="chapter18.html">Regular Expressions</a></li>
+                        <li><a href="../additional/concepts.html">Additional Concepts</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">PL/SQL</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" style="color: #999; cursor: not-allowed;">Coming Soon...</a></li>
                     </ul>
                 </li>
             </ul>
@@ -89,12 +106,6 @@ FROM table
                 <h2>3. Selecting All Columns</h2>
                 
                 <div class="code-block">
-SELECT *
-FROM emp;
-
-SELECT *
-FROM emp/
-
 SELECT * 
 FROM emp;
                 </div>
@@ -114,8 +125,6 @@ FROM EMP;
 SELECT empno,ename
 FROM EMP;
 
-SELECT empno, ename
-FROM EMP;
                 </div>
 
                 <h3>Guidelines in writing SQL Statements:</h3>
@@ -163,13 +172,13 @@ FROM emp;
 
                 <div class="code-block">
 SELECT ename,sal,12 * sal
-FROM emp;
+FROM emp;<br>
 
 SELECT ename,sal,12 * sal + 100
-FROM emp;
+FROM emp;<br>
 
 SELECT ename,sal,SAL + 100 * 12
-FROM emp;
+FROM emp;<br>
 
 SELECT ename,sal,12 * (sal + 100)
 FROM emp;
@@ -219,13 +228,13 @@ FROM EMP;
 
                 <div class="code-block">
 SELECT ename AS name,sal AS salary
-FROM EMP;
+FROM EMP;<br>
 
 SELECT ename name,sal salary
-FROM EMP;
+FROM EMP;<br>
 
 SELECT ename "Name",sal "Salary"
-FROM EMP;
+FROM EMP;<br>
 
 SELECT ename "Emp Name",sal * 12 "Annual Salary"
 FROM EMP;
@@ -244,7 +253,7 @@ FROM EMP;
 
                 <div class="code-block">
 SELECT ename||job
-FROM EMP;
+FROM EMP;<br>
 
 SELECT ename||job AS "Employee and Designation"
 FROM EMP;
@@ -262,7 +271,7 @@ FROM EMP;
 
                 <div class="code-block">
 SELECT ename ||' is a '||job "Employee Details"
-FROM EMP;
+FROM EMP;<br>
 
 SELECT ename||': 1 Month Salary = '||sal "Monthly Salary"
 FROM EMP;
@@ -285,13 +294,13 @@ SELECT ename||
 q'[ it's assigned Manager ID: ]'
 ||mgr
 AS "Employee and Manager ID"
-FROM emp;
+FROM emp;<br>
 
 SELECT ename||
 q'{, it's assigned Manager ID: }'
 ||mgr
 AS "Employee and Manager ID"
-FROM emp;
+FROM emp;<br>
 
 SELECT ename||
 q'<, it's assigned Manager ID: >'
@@ -303,7 +312,7 @@ FROM emp;
                 <h3>Example without Q Operator:</h3>
                 <div class="code-block">
 SELECT ename||'''s salary is '||sal "Without q Operator" 
-FROM emp;
+FROM emp;<br>
 
 SELECT 'A ''double quoted'' word.' AS text FROM dual;
                 </div>
@@ -315,11 +324,11 @@ SELECT 'A ''double quoted'' word.' AS text FROM dual;
                 <p>The default display of queries is all rows including duplicate rows.</p>
 
                 <div class="code-block">
--- Shows all department numbers including duplicates
+-- Shows all department numbers including duplicates<br>
 SELECT deptno
 FROM EMP;
 
--- Shows unique department numbers only
+-- Shows unique department numbers only <br>
 SELECT DISTINCT deptno
 FROM EMP;
                 </div>
@@ -332,7 +341,7 @@ FROM EMP;
 
                 <div class="code-block">
 DESCRIBE emp;
-
+<br>
 DESC emp;
                 </div>
 
