@@ -67,7 +67,8 @@
                 <h3>Syntax:</h3>
                 <div class="code-block">
 SELECT *|{[DISTINCT] column|expression [alias],...}
-FROM table
+<br>
+FROM table<br>
 [WHERE condition(s)];
                 </div>
 
@@ -83,19 +84,19 @@ FROM table
                 </div>
 
                 <div class="code-block">
--- Select all employees
-SELECT empno,ename,job,deptno
-FROM emp;
+-- Select all employees<br>
+SELECT empno,ename,job,deptno<br>
+FROM emp;<br>
 
--- Select employees from department 10
-SELECT empno,ename,job,deptno
-FROM emp
-WHERE deptno = 10;
+-- Select employees from department 10<br>
+SELECT empno,ename,job,deptno<br>
+FROM emp<br>
+WHERE deptno = 10;<br>
 
--- This will return no rows if department 100 doesn't exist
-SELECT empno,ename,job,deptno
-FROM emp
-WHERE deptno = 100;
+-- This will return no rows if department 100 doesn't exist<br>
+SELECT empno,ename,job,deptno<br>
+FROM emp<br>
+WHERE deptno = 100;<br>
                 </div>
             </section>
 
@@ -110,23 +111,23 @@ WHERE deptno = 100;
                 </ul>
 
                 <div class="code-block">
--- Case sensitive character comparison
-SELECT empno,ename,job,deptno
-FROM emp
-WHERE ename = 'Smith';  -- Will not match 'SMITH'
+-- Case sensitive character comparison<br>
+SELECT empno,ename,job,deptno<br>
+FROM emp<br>
+WHERE ename = 'Smith';  -- Will not match 'SMITH'<br>
 
-SELECT empno,ename,job,deptno
-FROM emp
-WHERE ename = 'SMITH';  -- Correct case
+SELECT empno,ename,job,deptno<br>
+FROM emp<br>
+WHERE ename = 'SMITH';  -- Correct case<br>
 
--- Date format examples
-SELECT empno,ename,hiredate
-FROM emp
-WHERE hiredate = 'December 17 1980';  -- May not work
+-- Date format examples<br>
+SELECT empno,ename,hiredate<br>
+FROM emp<br>
+WHERE hiredate = 'December 17 1980';  -- May not work<br>
 
-SELECT empno,ename,hiredate
-FROM emp
-WHERE hiredate = '17-DEC-80';  -- Correct format
+SELECT empno,ename,hiredate<br>
+FROM emp<br>
+WHERE hiredate = '17-DEC-80';  -- Correct format<br>
                 </div>
 
                 <div class="warning-box">
@@ -201,29 +202,29 @@ WHERE hiredate = '17-DEC-80';  -- Correct format
 
                 <h3>Examples:</h3>
                 <div class="code-block">
--- Comparison operators
-SELECT empno,ename,sal FROM EMP WHERE sal > 800;
-SELECT empno,ename,sal FROM EMP WHERE sal >= 800;
-SELECT empno,ename,sal FROM EMP WHERE sal < 3000;
-SELECT empno,ename,sal FROM EMP WHERE sal <= 3000;
-SELECT empno,ename,sal FROM EMP WHERE sal <> 800;
+-- Comparison operators<br>
+SELECT empno,ename,sal FROM EMP WHERE sal > 800;<br>
+SELECT empno,ename,sal FROM EMP WHERE sal >= 800;<br>
+SELECT empno,ename,sal FROM EMP WHERE sal < 3000;<br>
+SELECT empno,ename,sal FROM EMP WHERE sal <= 3000;<br>
+SELECT empno,ename,sal FROM EMP WHERE sal <> 800;<br>
 
--- BETWEEN operator (inclusive)
-SELECT empno,ename,sal FROM EMP WHERE sal BETWEEN 200 AND 3000;
--- Equivalent to:
-SELECT empno,ename,sal FROM EMP WHERE sal >= 200 AND sal <= 3000;
+-- BETWEEN operator (inclusive)<br>
+SELECT empno,ename,sal FROM EMP WHERE sal BETWEEN 200 AND 3000;<br>
+-- Equivalent to:<br>
+SELECT empno,ename,sal FROM EMP WHERE sal >= 200 AND sal <= 3000;<br>
 
--- Date BETWEEN
-SELECT empno,ename,hiredate FROM EMP 
-WHERE hiredate BETWEEN '01-JAN-80' AND '31-DEC-80';
+-- Date BETWEEN<br>
+SELECT empno,ename,hiredate FROM EMP <br>
+WHERE hiredate BETWEEN '01-JAN-80' AND '31-DEC-80';<br>
 
--- Character BETWEEN (alphabetical order)
-SELECT empno,ename,hiredate FROM EMP 
-WHERE ename BETWEEN 'SMITH' AND 'KING';
+-- Character BETWEEN (alphabetical order)<br>
+SELECT empno,ename,hiredate FROM EMP <br>
+WHERE ename BETWEEN 'SMITH' AND 'KING';<br>
 
--- IN operator
-SELECT empno,ename,deptno FROM EMP WHERE deptno IN(40,10,20);
-SELECT empno,ename,deptno FROM EMP WHERE deptno NOT IN(40,10,20);
+-- IN operator<br>
+SELECT empno,ename,deptno FROM EMP WHERE deptno IN(40,10,20);<br>
+SELECT empno,ename,deptno FROM EMP WHERE deptno NOT IN(40,10,20);<br>
                 </div>
 
                 <h3>LIKE Operator - Pattern Matching</h3>
@@ -236,15 +237,15 @@ SELECT empno,ename,deptno FROM EMP WHERE deptno NOT IN(40,10,20);
                 </ol>
 
                 <div class="code-block">
--- LIKE operator examples
-SELECT empno,ename,sal FROM EMP WHERE ename LIKE 'SM%';    -- Starts with 'SM'
-SELECT empno,ename,sal FROM EMP WHERE ename LIKE 'M%';     -- Starts with 'M'
-SELECT empno,ename,sal FROM EMP WHERE ename LIKE '%M_M%';  -- Contains 'M_M' pattern
-SELECT empno,ename,sal FROM EMP WHERE ename LIKE '%M%';    -- Contains 'M'
-SELECT empno,ename,sal FROM EMP WHERE ename LIKE '%S%';    -- Contains 'S'
+-- LIKE operator examples<br>
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE 'SM%';    -- Starts with 'SM'<br>
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE 'M%';     -- Starts with 'M'<br>
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE '%M_M%';  -- Contains 'M_M' pattern<br>
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE '%M%';    -- Contains 'M'<br>
+SELECT empno,ename,sal FROM EMP WHERE ename LIKE '%S%';    -- Contains 'S'<br>
 
--- NULL checks
-SELECT empno,ename,sal,comm FROM emp WHERE comm IS NULL;
+-- NULL checks<br>
+SELECT empno,ename,sal,comm FROM emp WHERE comm IS NULL;<br>
 SELECT empno,ename,sal,comm FROM emp WHERE comm IS NOT NULL;
                 </div>
 
@@ -286,22 +287,22 @@ SELECT empno,ename,sal,comm FROM emp WHERE comm IS NOT NULL;
                 <p>A Logical Condition combines the result of two component conditions to produce a single result. A row is returned only if the result of the condition is true.</p>
 
                 <div class="code-block">
--- AND operator - both conditions must be true
-SELECT empno,ename,sal,deptno FROM emp 
-WHERE sal > 800 AND deptno = 10;
+-- AND operator - both conditions must be true<br>
+SELECT empno,ename,sal,deptno FROM emp <br>
+WHERE sal > 800 AND deptno = 10;<br>
 
--- OR operator - either condition can be true
-SELECT ename,job,sal FROM emp 
-WHERE job = 'CLERK' AND sal > 3000 OR job = 'SALESMAN';
+-- OR operator - either condition can be true<br>
+SELECT ename,job,sal FROM emp <br>
+WHERE job = 'CLERK' AND sal > 3000 OR job = 'SALESMAN';<br>
 
--- More complex example
-SELECT ename,job,sal FROM emp 
-WHERE job IN ('CLERK','SALESMAN') AND sal > 3000 OR job = 'SALESMAN';
+-- More complex example<br>
+SELECT ename,job,sal FROM emp <br>
+WHERE job IN ('CLERK','SALESMAN') AND sal > 3000 OR job = 'SALESMAN';<br>
 
--- NOT operator examples
-SELECT empno,ename,deptno FROM emp WHERE deptno NOT IN (10,20);
-SELECT empno,ename,sal FROM emp WHERE sal NOT BETWEEN 800 AND 2000;
-SELECT empno,ename,job FROM emp WHERE ename NOT LIKE '%A%';
+-- NOT operator examples<br>
+SELECT empno,ename,deptno FROM emp WHERE deptno NOT IN (10,20);<br>
+SELECT empno,ename,sal FROM emp WHERE sal NOT BETWEEN 800 AND 2000;<br>
+SELECT empno,ename,job FROM emp WHERE ename NOT LIKE '%A%';<br>
 SELECT empno,ename,comm FROM EMP WHERE COMM IS NOT NULL;
                 </div>
 
@@ -325,51 +326,51 @@ SELECT empno,ename,comm FROM EMP WHERE COMM IS NOT NULL;
 
                 <h3>Basic Sorting:</h3>
                 <div class="code-block">
--- Sort by salary (ascending - default)
-SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY sal;
+-- Sort by salary (ascending - default)<br>
+SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY sal;<br>
 
--- Sort by salary (descending)
-SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY sal DESC;
+-- Sort by salary (descending)<br>
+SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY sal DESC;<br>
 
--- Sort by name
-SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY ename;
-SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY ename DESC;
+-- Sort by name<br>
+SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY ename;<br>
+SELECT EMPNO,ENAME,SAL FROM EMP ORDER BY ename DESC;<br>
 
--- Sort by date
-SELECT EMPNO,ENAME,hiredate FROM EMP ORDER BY hiredate;
+-- Sort by date<br>
+SELECT EMPNO,ENAME,hiredate FROM EMP ORDER BY hiredate;<br>
 SELECT EMPNO,ENAME,HIREDATE FROM EMP ORDER BY hiredate DESC;
                 </div>
 
                 <h3>NULL Handling in Sorting:</h3>
                 <div class="code-block">
--- NULL values appear last in ASC order
-SELECT EMPNO,comm,SAL FROM EMP ORDER BY comm;
+-- NULL values appear last in ASC order<br>
+SELECT EMPNO,comm,SAL FROM EMP ORDER BY comm;<br>
 
--- NULL values appear first in DESC order
-SELECT EMPNO,comm,SAL FROM EMP ORDER BY comm DESC;
+-- NULL values appear first in DESC order<br>
+SELECT EMPNO,comm,SAL FROM EMP ORDER BY comm DESC;<br>
                 </div>
 
                 <h3>Sorting with Aliases:</h3>
                 <div class="code-block">
--- Sort using column alias
-SELECT empno,ename,sal * 12 annsal FROM emp ORDER BY annsal;
+-- Sort using column alias<br>
+SELECT empno,ename,sal * 12 annsal FROM emp ORDER BY annsal;<br>
 
--- Sort using expression (same as alias)
-SELECT empno,ename,sal * 12 annsal FROM emp ORDER BY sal * 12;
+-- Sort using expression (same as alias)<br>
+SELECT empno,ename,sal * 12 annsal FROM emp ORDER BY sal * 12;<br>
 
--- Sort by column not in SELECT clause
+-- Sort by column not in SELECT clause<br>
 SELECT empno,ename,deptno FROM emp ORDER BY sal;
                 </div>
 
                 <h3>Multiple Column Sorting:</h3>
                 <div class="code-block">
--- Sort by department first, then by salary descending
-SELECT empno,sal,deptno FROM emp ORDER BY deptno,sal DESC;
+-- Sort by department first, then by salary descending<br>
+SELECT empno,sal,deptno FROM emp ORDER BY deptno,sal DESC;<br>
 
--- Both columns descending
-SELECT empno,sal,deptno FROM emp ORDER BY deptno DESC,sal DESC;
+-- Both columns descending<br>
+SELECT empno,sal,deptno FROM emp ORDER BY deptno DESC,sal DESC;<br>
 
--- Sort using column positions (not recommended)
+-- Sort using column positions (not recommended)<br>
 SELECT empno,sal,deptno FROM emp ORDER BY 3,2,1;
                 </div>
             </section>
@@ -389,20 +390,20 @@ SELECT empno,sal,deptno FROM emp ORDER BY 3,2,1;
                 </ol>
 
                 <div class="code-block">
--- Single ampersand (&) - prompts each time
-SELECT empno,ename,sal FROM emp WHERE ename = '&ENAME';
+-- Single ampersand (&) - prompts each time<br>
+SELECT empno,ename,sal FROM emp WHERE ename = '&ENAME';<br>
 
--- For numeric values (no quotes needed)
-SELECT empno,ename,sal FROM emp WHERE sal = &salary;
+-- For numeric values (no quotes needed)<br>
+SELECT empno,ename,sal FROM emp WHERE sal = &salary;<br>
 
--- For dates
-SELECT empno,ename,hiredate FROM emp WHERE hiredate = '&date';
+-- For dates<br>
+SELECT empno,ename,hiredate FROM emp WHERE hiredate = '&date';<br>
 
--- Double ampersand (&&) - stores value for session
-SELECT empno,ename,sal FROM emp WHERE ename = '&&ENAME';
+-- Double ampersand (&&) - stores value for session<br>
+SELECT empno,ename,sal FROM emp WHERE ename = '&&ENAME';<br>
 
--- Disable substitution variable scanning
-SET SCAN OFF;
+-- Disable substitution variable scanning<br>
+SET SCAN OFF;<br>
 SELECT '&ABC' x FROM dual;
                 </div>
             </section>
@@ -413,18 +414,18 @@ SELECT '&ABC' x FROM dual;
                 <p>Specify column names, expressions, and text using substitution variables:</p>
 
                 <div class="code-block">
--- Dynamic column selection and conditions
-SELECT empno,ename,deptno,&col_name
-FROM emp
-WHERE &condition
-ORDER BY &order_by;
+-- Dynamic column selection and conditions<br>
+SELECT empno,ename,deptno,&col_name<br>
+FROM emp<br>
+WHERE &condition<br>
+ORDER BY &order_by;<br>
 
--- Examples of different substitution patterns
-SELECT empno,ename,sal FROM emp WHERE ENAME = '&ENAME';
-SELECT empno,hiredate,ename,sal FROM emp WHERE hiredate = &hiredate;
+-- Examples of different substitution patterns<br>
+SELECT empno,ename,sal FROM emp WHERE ENAME = '&ENAME';<br>
+SELECT empno,hiredate,ename,sal FROM emp WHERE hiredate = &hiredate;<br>
 
--- Reusing substitution variables with &&
-SELECT empno,ename,sal FROM emp WHERE ename = '&&ENAME';
+-- Reusing substitution variables with &&<br>
+SELECT empno,ename,sal FROM emp WHERE ename = '&&ENAME';<br>
 -- The value will be reused in subsequent queries in the same session
                 </div>
 
